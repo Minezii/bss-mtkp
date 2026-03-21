@@ -13,8 +13,11 @@ export async function GET(request: Request) {
         });
 
         return NextResponse.json(materials);
-    } catch (error) {
+    } catch (error: any) {
         console.error('Fetch materials error:', error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        return NextResponse.json({
+            error: 'Internal Server Error',
+            details: error.message
+        }, { status: 500 });
     }
 }
