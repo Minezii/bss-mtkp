@@ -34,10 +34,10 @@ export default function Navbar() {
                     <div className="flex justify-between h-16 items-center">
                         <div className="flex items-center">
                             <Link href="/" className="flex items-center gap-2 group">
-                                <div className="bg-primary text-primary-foreground p-1.5 rounded-lg group-hover:scale-110 transition-transform">
+                                <div className="bg-primary text-primary-foreground p-1.5 rounded-lg group-hover:scale-110 transition-all duration-300">
                                     <Rocket size={20} />
                                 </div>
-                                <span className="text-xl font-bold tracking-tight">БСС МТКП</span>
+                                <span className="text-xl font-bold tracking-tight transition-colors duration-300">БСС МТКП</span>
                             </Link>
                         </div>
 
@@ -50,7 +50,7 @@ export default function Navbar() {
                                     <Link
                                         key={item.href}
                                         href={item.href}
-                                        className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all ${isActive
+                                        className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 ${isActive
                                             ? 'bg-primary text-primary-foreground shadow-sm'
                                             : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
                                             }`}

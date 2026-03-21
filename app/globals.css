@@ -103,13 +103,7 @@ select {
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-@layer base {
-  * {
-    transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
-    transition-duration: 200ms;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  }
-}
+/* Removed universal transition to prevent flickering */
 
 .dark .group:hover {
   box-shadow: 0 0 20px 0 rgba(99, 102, 241, 0.1);
