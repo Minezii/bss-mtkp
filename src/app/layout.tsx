@@ -9,13 +9,18 @@ const inter = Inter({ subsets: ["latin", "cyrillic"] });
 export const metadata: Metadata = {
   title: "БСС МТКП | Большая студенческая система",
   description: "Единая точка входа для студентов МТКП: конспекты, преподаватели, инструменты.",
-  viewport: "width=device-width, initial-scale=1, viewport-fit=cover",
-  themeColor: "#0f172a",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "БСС МТКП",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#0f172a",
 };
 
 export default function RootLayout({
