@@ -6,7 +6,7 @@ import { Search, Star, MessageSquare, Filter, User, RefreshCcw } from 'lucide-re
 
 import { useRouter } from 'next/navigation';
 
-const departments = []; // Будет заполнено позже пользователем
+const departments: string[] = []; // Будет заполнено позже пользователем
 
 const RatingBar = ({ label, value }: { label: string; value: number }) => (
     <div className="space-y-1">
