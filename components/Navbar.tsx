@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, Users, Wrench, Menu, X, Rocket } from 'lucide-react';
-import { useState } from 'react';
+import { BookOpen, Users, Wrench, Menu, X, Rocket, Moon, Sun } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useTheme } from 'next-themes';
 
 const navItems = [
     { name: 'Студентам', href: '/', icon: BookOpen },
@@ -14,6 +15,17 @@ const navItems = [
 export default function Navbar() {
     const pathname = usePathname();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const { theme, setTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+
+    // Prevent hydration mismatch
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const toggleTheme = () => {
+        setTheme(theme === 'dark' ? 'light' : 'dark');
+    };
 
     return (
         <>
@@ -48,10 +60,24 @@ export default function Navbar() {
                                     </Link>
                                 );
                             })}
+                            <button
+                                onClick={toggleTheme}
+                                className="p-2 ml-2 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+                                aria-label="Переключить тему"
+                            >
+                                {mounted && (theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />)}
+                            </button>
                         </div>
 
                         {/* Mobile Menu Button */}
-                        <div className="md:hidden flex items-center">
+                        <div className="md:hidden flex items-center gap-2">
+                            <button
+                                onClick={toggleTheme}
+                                className="p-2 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+                                aria-label="Переключить тему"
+                            >
+                                {mounted && (theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />)}
+                            </button>
                             <button
                                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                                 className="text-muted-foreground hover:text-foreground p-2"
@@ -78,7 +104,7 @@ export default function Navbar() {
 
                 {/* Drawer Content with solid background and higher z-index */}
                 <div
-                    className={`absolute right-0 top-0 h-full w-[280px] bg-white border-l border-border shadow-2xl transition-transform duration-300 ease-out z-50 ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+                    className={`absolute right-0 top-0 h-full w-[280px] bg-background border-l border-border shadow-2xl transition-transform duration-300 ease-out z-50 ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'
                         }`}
                 >
                     <div className="flex flex-col h-full p-6">
