@@ -177,11 +177,11 @@ export default function ToolsPage() {
                             <h2 className="font-black text-xl">До сессии</h2>
                         </div>
                         <div className="flex items-baseline gap-2">
-                            <span className="text-6xl font-black tabular-nums">{timeLeft.days}</span>
+                            <span className="text-6xl font-black tabular-nums">XX</span>
                             <span className="text-xl font-medium opacity-80">дней</span>
                         </div>
                         <p className="text-sm font-medium opacity-70">
-                            Копи конспекты и готовь зачетку, <br />враг у ворот.
+                            Копи конспекты и готовь зачетку, <br />дата скоро будет.
                         </p>
                     </div>
 
@@ -189,7 +189,7 @@ export default function ToolsPage() {
                         <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-white transition-all duration-1000"
-                                style={{ width: `${Math.min(100, (60 - timeLeft.days) / 60 * 100)}%` }}
+                                style={{ width: `0%` }}
                             />
                         </div>
                     </div>
