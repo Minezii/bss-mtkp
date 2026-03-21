@@ -18,9 +18,16 @@ export async function POST(request: Request) {
         // Хешируем введенный пароль (SHA-256)
         const encoder = new TextEncoder();
         const data = encoder.encode(password);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+
+        // Use globalThis.crypto for cross-environment compatibility
+        const hashBuffer = await (globalThis.crypto || crypto).subtle.digest('SHA-256', data);
         const hashArray = Array.from(new Uint8Array(hashBuffer));
         const hashedPassword = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+        if (!process.env.ADMIN_PASSWORD_HASH) {
+            console.error('CRITICAL: ADMIN_PASSWORD_HASH environment variable is missing!');
+            return NextResponse.json({ error: 'Сервер не настроен (отсутствует HASH)' }, { status: 501 });
+        }
 
         if (hashedPassword !== process.env.ADMIN_PASSWORD_HASH) {
             return NextResponse.json({ error: 'Неверный пароль' }, { status: 401 });
