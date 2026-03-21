@@ -75,7 +75,7 @@ export default function Navbar() {
 
                 {/* Drawer Content */}
                 <div
-                    className={`absolute right-0 top-0 h-full w-[280px] bg-card border-l border-border shadow-2xl transition-transform duration-300 ease-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+                    className={`absolute right-0 top-0 h-full w-[280px] bg-white dark:bg-[#020617] border-l border-border shadow-2xl transition-transform duration-300 ease-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'
                         }`}
                 >
                     <div className="flex flex-col h-full p-6">
