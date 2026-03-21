@@ -12,7 +12,7 @@ import {
     RefreshCcw
 } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
+
 import Link from 'next/link';
 
 const baseCategories = [

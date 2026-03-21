@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Search, Star, MessageSquare, Filter, User, RefreshCcw } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
+
 import { useRouter } from 'next/navigation';
 
 const departments = ['Информатика и связь', 'Радиоаппаратостроение', 'Общеобразовательные', 'Техническая'];
