@@ -1,11 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 
 const prismaClientSingleton = () => {
-    // Silent fallback for build phase
-    const url = process.env.DATABASE_URL || "file:./dev.db";
     return new PrismaClient({
-        datasourceUrl: url
-    });
+        datasourceUrl: process.env.DATABASE_URL || "file:./dev.db"
+    } as any);
 };
 
 declare global {
