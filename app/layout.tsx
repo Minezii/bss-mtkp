@@ -1,5 +1,6 @@
 // Trigger Vercel rebuild: Metadata compliance fix
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/react"
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
@@ -42,6 +43,7 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
+          <Analytics />
         </ThemeProvider>
       </body>
     </html>
