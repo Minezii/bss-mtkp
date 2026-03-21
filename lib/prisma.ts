@@ -1,9 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 
 const prismaClientSingleton = () => {
-    // Basic initialization. SQLite on Vercel is problematic, 
-    // but at least we shouldn't crash on absolute paths.
-    return new PrismaClient();
+    // Explicitly fallback to relative path if DATABASE_URL is missing
+    const url = process.env.DATABASE_URL || "file:./dev.db";
+    return new PrismaClient({
+        datasources: {
+            db: { url }
+        }
+    });
 };
 
 declare global {
