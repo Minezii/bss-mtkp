@@ -16,66 +16,69 @@ export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     return (
-        <nav className="sticky top-0 z-50 glass border-b border-border">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between h-16 items-center">
-                    <div className="flex items-center">
-                        <Link href="/" className="flex items-center gap-2 group">
-                            <div className="bg-primary text-primary-foreground p-1.5 rounded-lg group-hover:scale-110 transition-transform">
-                                <Rocket size={20} />
-                            </div>
-                            <span className="text-xl font-bold tracking-tight">БСС МТКП</span>
-                        </Link>
-                    </div>
+        <>
+            <nav className="sticky top-0 z-50 glass border-b border-border">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between h-16 items-center">
+                        <div className="flex items-center">
+                            <Link href="/" className="flex items-center gap-2 group">
+                                <div className="bg-primary text-primary-foreground p-1.5 rounded-lg group-hover:scale-110 transition-transform">
+                                    <Rocket size={20} />
+                                </div>
+                                <span className="text-xl font-bold tracking-tight">БСС МТКП</span>
+                            </Link>
+                        </div>
 
-                    {/* Desktop Nav */}
-                    <div className="hidden md:flex items-center space-x-4">
-                        {navItems.map((item) => {
-                            const Icon = item.icon;
-                            const isActive = pathname === item.href;
-                            return (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
-                                    className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all ${isActive
-                                        ? 'bg-primary text-primary-foreground shadow-sm'
-                                        : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-                                        }`}
-                                >
-                                    <Icon size={18} />
-                                    {item.name}
-                                </Link>
-                            );
-                        })}
-                    </div>
+                        {/* Desktop Nav */}
+                        <div className="hidden md:flex items-center space-x-4">
+                            {navItems.map((item) => {
+                                const Icon = item.icon;
+                                const isActive = pathname === item.href;
+                                return (
+                                    <Link
+                                        key={item.href}
+                                        href={item.href}
+                                        className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all ${isActive
+                                            ? 'bg-primary text-primary-foreground shadow-sm'
+                                            : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                                            }`}
+                                    >
+                                        <Icon size={18} />
+                                        {item.name}
+                                    </Link>
+                                );
+                            })}
+                        </div>
 
-                    {/* Mobile Menu Button */}
-                    <div className="md:hidden flex items-center">
-                        <button
-                            onClick={() => setIsMenuOpen(!isMenuOpen)}
-                            className="text-muted-foreground hover:text-foreground p-2"
-                        >
-                            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                        </button>
+                        {/* Mobile Menu Button */}
+                        <div className="md:hidden flex items-center">
+                            <button
+                                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                className="text-muted-foreground hover:text-foreground p-2"
+                            >
+                                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </nav>
 
-            {/* Mobile Nav Drawer */}
+            {/* Mobile Nav Drawer - Outside sticky nav for Safari compatibility */}
             <div
-                className={`fixed inset-0 z-[100] md:hidden transition-all duration-300 ${isMenuOpen ? 'visible' : 'invisible'
+                className={`fixed inset-0 z-[100] md:hidden transition-all duration-300 ${isMenuOpen ? 'visible opacity-100' : 'invisible opacity-0'
                     }`}
+                style={{ isolation: 'isolate' }}
             >
-                {/* Backdrop */}
+                {/* Backdrop with explicit Webkit support */}
                 <div
-                    className={`absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity duration-300 ${isMenuOpen ? 'opacity-100' : 'opacity-0'
-                        }`}
+                    className="absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity duration-300"
+                    style={{ WebkitBackdropFilter: 'blur(4px)' }}
                     onClick={() => setIsMenuOpen(false)}
                 />
 
-                {/* Drawer Content */}
+                {/* Drawer Content with solid background and higher z-index */}
                 <div
-                    className={`absolute right-0 top-0 h-full w-[280px] bg-white dark:bg-[#020617] border-l border-border shadow-2xl transition-transform duration-300 ease-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+                    className={`absolute right-0 top-0 h-full w-[280px] bg-white dark:bg-slate-950 border-l border-border shadow-2xl transition-transform duration-300 ease-out z-50 ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'
                         }`}
                 >
                     <div className="flex flex-col h-full p-6">
@@ -120,6 +123,8 @@ export default function Navbar() {
                     </div>
                 </div>
             </div>
-        </nav>
+        </>
+    );
+}
     );
 }
