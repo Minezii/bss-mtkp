@@ -4,10 +4,8 @@ const prismaClientSingleton = () => {
     // Explicitly fallback to relative path if DATABASE_URL is missing
     const url = process.env.DATABASE_URL || "file:./dev.db";
     return new PrismaClient({
-        datasources: {
-            db: { url }
-        }
-    });
+        datasourceUrl: url
+    } as any);
 };
 
 declare global {
