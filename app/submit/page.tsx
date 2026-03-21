@@ -76,13 +76,13 @@ export default function SubmitPage() {
             <form onSubmit={handleSubmit} className="bg-card border border-border rounded-3xl p-6 md:p-8 space-y-6 shadow-xl shadow-black/5">
                 <div className="space-y-4">
                     <label className="text-sm font-black uppercase tracking-widest text-muted-foreground">Что добавляем?</label>
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         {(['material', 'teacher', 'tool'] as const).map((t) => (
                             <button
                                 key={t}
                                 type="button"
                                 onClick={() => setType(t)}
-                                className={`py-3 px-4 rounded-xl text-sm font-bold border-2 transition-all ${type === t
+                                className={`py-3 px-2 rounded-xl text-xs sm:text-sm font-bold border-2 transition-all flex items-center justify-center text-center ${type === t
                                     ? 'border-primary bg-primary text-primary-foreground'
                                     : 'border-secondary bg-secondary text-secondary-foreground hover:border-muted-foreground/30'
                                     }`}
