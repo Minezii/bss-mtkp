@@ -1,16 +1,11 @@
 import { PrismaClient } from '@prisma/client';
 
 const prismaClientSingleton = () => {
-    // During build, if DATABASE_URL is missing, we catch the error but return an empty object if in production (build worker)
-    try {
-        return new PrismaClient();
-    } catch (e) {
-        if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
-            console.warn('PrismaClient error during build phase - likely missing DATABASE_URL');
-            return {} as PrismaClient;
-        }
-        throw e;
-    }
+    // Silent fallback for build phase
+    const url = process.env.DATABASE_URL || "file:./dev.db";
+    return new PrismaClient({
+        datasourceUrl: url
+    });
 };
 
 declare global {
