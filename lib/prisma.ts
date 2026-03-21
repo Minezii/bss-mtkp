@@ -2,8 +2,12 @@ import { PrismaClient } from '@prisma/client';
 
 const prismaClientSingleton = () => {
     return new PrismaClient({
-        datasourceUrl: process.env.DATABASE_URL || "file:./dev.db"
-    } as any);
+        datasources: {
+            db: {
+                url: process.env.DATABASE_URL || "file:./dev.db"
+            }
+        }
+    });
 };
 
 declare global {
