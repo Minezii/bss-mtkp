@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Search, Book, FileText, Download, Filter, GraduationCap, RefreshCcw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
+
 
 const courses = [1, 2, 3, 4];
 
