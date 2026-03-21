@@ -3,9 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prismaClientSingleton = () => {
     const url = process.env.DATABASE_URL || 'file:./dev.db';
     return new PrismaClient({
-        datasources: {
-            db: { url }
-        }
+        datasourceUrl: url
     });
 };
 
