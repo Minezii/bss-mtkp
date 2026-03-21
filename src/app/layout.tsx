@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+// Trigger Vercel rebuild: Metadata compliance fix
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
