@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { SignJWT } from 'jose';
 import { crypto } from 'next/dist/compiled/@edge-runtime/primitives';
 
+export const dynamic = 'force-dynamic';
+
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback_secret');
 
 export async function POST(request: Request) {
