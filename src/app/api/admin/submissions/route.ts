@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
+    const prisma = (await import('@/lib/prisma')).default;
     try {
         const submissions = await prisma.submission.findMany({
             where: { status: 'pending' },
