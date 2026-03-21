@@ -98,6 +98,7 @@ export default function SubmitPage() {
                         <label htmlFor="name" className="text-sm font-bold ml-1">Как тебя зовут? (по желанию)</label>
                         <input
                             id="name"
+                            name="name"
                             type="text"
                             placeholder="Анонимный студент"
                             className="w-full bg-secondary border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary outline-none text-foreground"
@@ -108,6 +109,7 @@ export default function SubmitPage() {
                         <label htmlFor="title" className="text-sm font-bold ml-1">Название / Тема</label>
                         <input
                             id="title"
+                            name="title"
                             required
                             type="text"
                             placeholder={type === 'material' ? 'Напр: Лекция по ТОЭ №3' : type === 'teacher' ? 'Напр: Петров И.С.' : 'Напр: Solver 3000'}
@@ -119,6 +121,7 @@ export default function SubmitPage() {
                         <label htmlFor="desc" className="text-sm font-bold ml-1">Описание / Ссылка / Текст отзыва</label>
                         <textarea
                             id="desc"
+                            name="desc"
                             required
                             rows={4}
                             placeholder="Опиши детали или вставь ссылку..."
