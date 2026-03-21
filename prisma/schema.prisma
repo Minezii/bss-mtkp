@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Submission {
+  id        Int      @id @default(autoincrement())
+  type      String   // material, teacher, tool
+  title     String
+  author    String?
+  content   String?  // description, link or review text
+  fileUrl   String?
+  status    String   @default("pending") // pending, approved, rejected
+  createdAt DateTime @default(now())
+}
+
+model Material {
+  id        Int      @id @default(autoincrement())
+  title     String
+  course    Int
+  category  String   // Конспект, Лекция, Шпаргалка
+  subject   String
+  downloads Int      @default(0)
+  fileUrl   String?
+  createdAt DateTime @default(now())
+}
+
+model Teacher {
+  id             Int      @id @default(autoincrement())
+  name           String
+  department     String
+  subjects       String   // Comma-separated list
+  lecturesRating Float    @default(0)
+  examsRating    Float    @default(0)
+  clarityRating  Float    @default(0)
+  fairnessRating Float    @default(0)
+  overallRating  Float    @default(0)
+  reviewsCount   Int      @default(0)
+  createdAt      DateTime @default(now())
+}
+
+model Tool {
+  id        Int      @id @default(autoincrement())
+  name      String
+  desc      String
+  category  String
+  url       String?
+  createdAt DateTime @default(now())
+}

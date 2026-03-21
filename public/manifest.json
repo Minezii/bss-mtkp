@@ -1,0 +1,17 @@
+{
+  "name": "БСС МТКП | Большая студенческая система",
+  "short_name": "БСС МТКП",
+  "description": "Единая точка входа для студентов МТКП: конспекты, преподаватели, инструменты.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "next.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,160 @@
+'use client';
+
+import { useState } from 'react';
+import { Send, Upload, CheckCircle2, AlertCircle } from 'lucide-react';
+
+type SubmissionType = 'material' | 'teacher' | 'tool';
+
+export default function SubmitPage() {
+    const [type, setType] = useState<SubmissionType>('material');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+
+        // Get form data from e.target
+        const formData = new FormData(e.target as HTMLFormElement);
+        const data = {
+            type,
+            title: formData.get('title'),
+            author: formData.get('name'),
+            content: formData.get('desc'),
+            fileUrl: '', // For now empty, can be implemented with storage later
+        };
+
+        try {
+            const res = await fetch('/api/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            if (res.ok) {
+                setIsSuccess(true);
+            } else {
+                alert('Ошибка при отправке. Попробуй позже.');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Ошибка сети.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    if (isSuccess) {
+        return (
+            <div className="max-w-md mx-auto py-20 text-center space-y-6">
+                <div className="inline-flex items-center justify-center p-4 bg-emerald-500/10 text-emerald-500 rounded-full mb-4">
+                    <CheckCircle2 size={64} />
+                </div>
+                <h1 className="text-3xl font-black">Заявка отправлена!</h1>
+                <p className="text-muted-foreground italic">
+                    Твое предложение улетело админу на проверку. Если всё ок, скоро оно появится в системе. Респектуем за вклад!
+                </p>
+                <button
+                    onClick={() => setIsSuccess(false)}
+                    className="bg-primary text-primary-foreground px-8 py-3 rounded-xl font-bold hover:scale-105 transition-transform"
+                >
+                    Отправить еще что-нибудь
+                </button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="max-w-2xl mx-auto space-y-8">
+            <header className="space-y-3">
+                <h1 className="text-4xl font-extrabold tracking-tight">Добавить в систему</h1>
+                <p className="text-muted-foreground">
+                    Хочешь закинуть конспект, оценить препода (которого нет в списке) или предложить крутую решалку? Пиши всё сюда.
+                </p>
+            </header>
+
+            <form onSubmit={handleSubmit} className="bg-card border border-border rounded-3xl p-6 md:p-8 space-y-6 shadow-xl shadow-black/5">
+                <div className="space-y-4">
+                    <label className="text-sm font-black uppercase tracking-widest text-muted-foreground">Что добавляем?</label>
+                    <div className="grid grid-cols-3 gap-3">
+                        {(['material', 'teacher', 'tool'] as const).map((t) => (
+                            <button
+                                key={t}
+                                type="button"
+                                onClick={() => setType(t)}
+                                className={`py-3 px-4 rounded-xl text-sm font-bold border-2 transition-all ${type === t
+                                    ? 'border-primary bg-primary text-primary-foreground'
+                                    : 'border-secondary bg-secondary text-secondary-foreground hover:border-muted-foreground/30'
+                                    }`}
+                            >
+                                {t === 'material' ? 'Конспект' : t === 'teacher' ? 'Препод' : 'Инструмент'}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-6">
+                    <div className="space-y-2">
+                        <label htmlFor="name" className="text-sm font-bold ml-1">Как тебя зовут? (по желанию)</label>
+                        <input
+                            id="name"
+                            type="text"
+                            placeholder="Анонимный студент"
+                            className="w-full bg-secondary border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary outline-none text-foreground"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label htmlFor="title" className="text-sm font-bold ml-1">Название / Тема</label>
+                        <input
+                            id="title"
+                            required
+                            type="text"
+                            placeholder={type === 'material' ? 'Напр: Лекция по ТОЭ №3' : type === 'teacher' ? 'Напр: Петров И.С.' : 'Напр: Solver 3000'}
+                            className="w-full bg-secondary border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary outline-none text-foreground"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label htmlFor="desc" className="text-sm font-bold ml-1">Описание / Ссылка / Текст отзыва</label>
+                        <textarea
+                            id="desc"
+                            required
+                            rows={4}
+                            placeholder="Опиши детали или вставь ссылку..."
+                            className="w-full bg-secondary border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary outline-none text-foreground resize-none"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-bold ml-1">Прикрепить файл (если есть)</label>
+                        <div className="border-2 border-dashed border-border rounded-xl p-8 transition-colors hover:border-primary/50 text-center cursor-pointer group">
+                            <Upload className="mx-auto text-muted-foreground group-hover:text-primary transition-colors mb-2" />
+                            <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors uppercase font-black tracking-widest">Выбери файл</p>
+                            <p className="text-xs text-muted-foreground mt-1 underline">PDF, DOCX, PNG до 20MB</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button
+                    disabled={isSubmitting}
+                    type="submit"
+                    className="w-full bg-primary text-primary-foreground py-4 rounded-2xl font-black text-lg flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 shadow-lg shadow-primary/20"
+                >
+                    {isSubmitting ? (
+                        <div className="w-6 h-6 border-4 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                    ) : (
+                        <>
+                            <Send size={20} />
+                            Отправить на проверку
+                        </>
+                    )}
+                </button>
+
+                <p className="text-[10px] text-center text-muted-foreground px-4 leading-normal">
+                    Нажимая «Отправить», ты соглашаешься с тем, что админ прочитает твой шедевр и, возможно, даже добавит его на сайт. Не будь редиской, не спамь.
+                </p>
+            </form>
+        </div>
+    );
+}
