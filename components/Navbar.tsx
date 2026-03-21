@@ -78,7 +78,7 @@ export default function Navbar() {
 
                 {/* Drawer Content with solid background and higher z-index */}
                 <div
-                    className={`absolute right-0 top-0 h-full w-[280px] bg-white dark:bg-slate-950 border-l border-border shadow-2xl transition-transform duration-300 ease-out z-50 ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+                    className={`absolute right-0 top-0 h-full w-[280px] bg-white border-l border-border shadow-2xl transition-transform duration-300 ease-out z-50 ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'
                         }`}
                 >
                     <div className="flex flex-col h-full p-6">
