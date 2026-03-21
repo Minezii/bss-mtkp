@@ -1,17 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 
 const prismaClientSingleton = () => {
-    // During build, if DATABASE_URL is somehow missing or we are in a static worker phase,
-    // we try to prevent a hard crash if possible. 
-    try {
-        return new PrismaClient();
-    } catch (e) {
-        if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
-            console.warn('PrismaClient initialization failed during build. This is expected if DATABASE_URL is not set for static collection.');
-            return {} as PrismaClient; // Mock for build phase
+    const url = process.env.DATABASE_URL || 'file:./dev.db';
+    return new PrismaClient({
+        datasources: {
+            db: { url }
         }
-        throw e;
-    }
+    });
 };
 
 declare global {
