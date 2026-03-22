@@ -15,6 +15,7 @@ model Submission {
   author    String?
   group     String?  // New field for groups like "ТИП 11"
   content   String?  // description, link or review text
+  subject   String?  // New field to separate subject from content
   fileUrl   String?
   imageUrl  String?  // Photo for teachers or rich content
   status    String   @default("pending") // pending, approved, rejected, draft

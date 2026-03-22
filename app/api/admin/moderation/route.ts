@@ -20,6 +20,7 @@ export async function POST(request: Request) {
         const finalData = {
             title: updatedData?.title || submission.title,
             content: updatedData?.content || submission.content,
+            subject: updatedData?.subject || submission.subject,
             group: updatedData?.group || submission.group,
             type: updatedData?.type || submission.type,
             fileUrl: updatedData?.fileUrl || submission.fileUrl,
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
                 data: {
                     title: finalData.title,
                     content: finalData.content,
+                    subject: finalData.subject,
                     group: finalData.group,
                     imageUrl: finalData.imageUrl,
                     status: 'draft'
@@ -60,7 +62,7 @@ export async function POST(request: Request) {
                         group: finalData.group,
                         course: course,
                         category: finalData.category,
-                        subject: finalData.content || 'Неизвестно',
+                        subject: finalData.subject || 'Неизвестно',
                         fileUrl: finalData.fileUrl,
                     },
                 });

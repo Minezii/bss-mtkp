@@ -21,6 +21,7 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
     const [group, setGroup] = useState('');
     const [imageUrl, setImageUrl] = useState('');
     const [category, setCategory] = useState('Конспект');
+    const [subject, setSubject] = useState('');
     const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
 
     // Subjects management
@@ -41,6 +42,7 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
                     setSubmission(data);
                     setTitle(data.title || '');
                     setContent(data.content || '');
+                    setSubject(data.subject || '');
                     setGroup(data.group || '');
                     setImageUrl(data.imageUrl || '');
                     setCategory(data.category || 'Конспект');
@@ -77,6 +79,7 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
             const updatedData = {
                 title,
                 content: submission.type === 'teacher' ? selectedSubjects.join(', ') : content,
+                subject: submission.type === 'material' ? subject : (submission.type === 'teacher' ? selectedSubjects.join(', ') : null),
                 group,
                 imageUrl,
                 category,
@@ -184,6 +187,17 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
                                     className="w-full bg-secondary border-none rounded-2xl py-4 px-5 focus:ring-2 focus:ring-primary outline-none transition-all font-bold"
                                 />
                             </div>
+                            {submission.type === 'material' && (
+                                <div className="space-y-2">
+                                    <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Предмет</label>
+                                    <input
+                                        value={subject}
+                                        onChange={(e) => setSubject(e.target.value)}
+                                        placeholder="Напр: ОБЖ, Физика"
+                                        className="w-full bg-secondary border-none rounded-2xl py-4 px-5 focus:ring-2 focus:ring-primary outline-none transition-all font-bold"
+                                    />
+                                </div>
+                            )}
                             {submission.type === 'material' && (
                                 <div className="space-y-2">
                                     <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Группа</label>
@@ -301,7 +315,7 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
                                     </div>
                                     <h3 className="text-2xl font-black mb-3 line-clamp-2 leading-tight">{title || 'Заголовок'}</h3>
                                     <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
-                                        Предмет: <span className="text-foreground font-bold">{content || '...'}</span>
+                                        Предмет: <span className="text-foreground font-bold">{subject || '...'}</span>
                                     </p>
                                     <div className="flex justify-between items-center pt-6 border-t border-border">
                                         <span className="text-[10px] font-black px-4 py-2 bg-primary/10 text-primary rounded-full uppercase tracking-widest">
