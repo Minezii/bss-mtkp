@@ -10,9 +10,9 @@ export async function submitAction(formData: FormData) {
         const content = formData.get('desc') as string;
         const group = formData.get('group') as string;
 
-        // Handling file metadata only for now as requested
+        // Extract file only if it was actually selected and is under the size limit
         const file = formData.get('file') as File | null;
-        const fileUrl = file ? `[attached: ${file.name}]` : null;
+        const fileUrl = (file && file.size > 0 && file.name !== 'undefined') ? `[attached: ${file.name}]` : null;
 
         if (!type || !title || !content) {
             return { error: 'Missing required fields' };

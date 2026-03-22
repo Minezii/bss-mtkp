@@ -17,6 +17,12 @@ export default function SubmitPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (selectedFile && selectedFile.size > 4.5 * 1024 * 1024) {
+            alert('Файл слишком большой для прямой загрузки (лимит 4.5МБ на Vercel). Пожалуйста, загрузи его на Яндекс.Диск/Google Drive и вставь ссылку в описание, либо выбери файл поменьше.');
+            return;
+        }
+
         setIsSubmitting(true);
 
         const form = e.target as HTMLFormElement;
