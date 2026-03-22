@@ -14,7 +14,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     const [formData, setFormData] = useState({
         username: '',
         password: '',
-        group: ''
+        confirmPassword: ''
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -24,6 +24,12 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+
+        if (!isLogin && formData.password !== formData.confirmPassword) {
+            setError('Пароли не совпадают');
+            return;
+        }
+
         setLoading(true);
 
         const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
@@ -32,7 +38,10 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
             const res = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({
+                    username: formData.username,
+                    password: formData.password
+                })
             });
 
             const data = await res.json();
@@ -41,7 +50,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                 if (!isLogin) {
                     // Switch to login after registration
                     setIsLogin(true);
-                    setFormData({ ...formData, password: '' });
+                    setFormData({ ...formData, password: '', confirmPassword: '' });
                     alert('Регистрация успешна! Теперь вы можете войти.');
                 } else {
                     onSuccess(data.user);
@@ -87,23 +96,6 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                         </div>
                     </div>
 
-                    {!isLogin && (
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold ml-1">Группа</label>
-                            <div className="relative">
-                                <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-                                <input
-                                    required
-                                    type="text"
-                                    value={formData.group}
-                                    onChange={(e) => setFormData({ ...formData, group: e.target.value })}
-                                    className="w-full bg-secondary border-none rounded-2xl py-3.5 pl-12 pr-4 focus:ring-2 focus:ring-primary outline-none transition-all"
-                                    placeholder="ТИП 11"
-                                />
-                            </div>
-                        </div>
-                    )}
-
                     <div className="space-y-2">
                         <label className="text-sm font-bold ml-1">Пароль</label>
                         <div className="relative">
@@ -118,6 +110,23 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                             />
                         </div>
                     </div>
+
+                    {!isLogin && (
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold ml-1">Подтвердите пароль</label>
+                            <div className="relative">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+                                <input
+                                    required
+                                    type="password"
+                                    value={formData.confirmPassword}
+                                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                                    className="w-full bg-secondary border-none rounded-2xl py-3.5 pl-12 pr-4 focus:ring-2 focus:ring-primary outline-none transition-all"
+                                    placeholder="••••••••"
+                                />
+                            </div>
+                        </div>
+                    )}
 
                     {error && (
                         <p className="text-destructive text-sm font-bold text-center px-2">{error}</p>
