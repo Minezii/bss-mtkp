@@ -7,6 +7,7 @@ import {
     Bold, Italic, List, Link as LinkIcon, Heading1, Heading2,
     ChevronLeft, Image as ImageIcon, Search, Trash2, RefreshCcw
 } from 'lucide-react';
+import SummaryRenderer from '@/components/SummaryRenderer';
 
 export default function EditPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
@@ -23,6 +24,7 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
     const [category, setCategory] = useState('Конспект');
     const [subject, setSubject] = useState('');
     const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
+    const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
 
     // Subjects management
     const [allSubjects, setAllSubjects] = useState<any[]>([]);
@@ -122,6 +124,49 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
             textarea.focus();
             textarea.setSelectionRange(start + before.length, end + before.length);
         }, 0);
+    };
+
+    // Simple markdown to blocks converter for preview
+    const parseMarkdownToBlocks = (md: string) => {
+        const lines = md.split('\n');
+        const blocks: any[] = [];
+        let currentList: any[] = [];
+
+        const flushList = () => {
+            if (currentList.length > 0) {
+                blocks.push({
+                    type: 'list',
+                    data: { style: 'unordered', items: [...currentList] }
+                });
+                currentList = [];
+            }
+        };
+
+        lines.forEach(line => {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('# ')) {
+                flushList();
+                blocks.push({ type: 'header', data: { level: 1, text: trimmed.replace('# ', '') } });
+            } else if (trimmed.startsWith('## ')) {
+                flushList();
+                blocks.push({ type: 'header', data: { level: 2, text: trimmed.replace('## ', '') } });
+            } else if (trimmed.startsWith('- ')) {
+                currentList.push(trimmed.replace('- ', ''));
+            } else if (trimmed === '') {
+                flushList();
+                blocks.push({ type: 'delimiter', data: {} });
+            } else {
+                flushList();
+                // Simple bold/italic replacement for preview
+                let text = trimmed
+                    .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+                    .replace(/\*(.*?)\*/g, '<i>$1</i>')
+                    .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" style="color:var(--primary)">$1</a>');
+                blocks.push({ type: 'paragraph', data: { text } });
+            }
+        });
+        flushList();
+        return { blocks };
     };
 
     if (loading) return (
@@ -227,9 +272,27 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
 
                         {/* Formatting Toolbar & Content */}
                         <div className="space-y-4">
-                            <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">
-                                {submission.type === 'teacher' ? 'Предметы' : 'Содержимое'}
-                            </label>
+                            <div className="flex items-center justify-between ml-1">
+                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                                    {submission.type === 'teacher' ? 'Предметы' : 'Содержимое'}
+                                </label>
+                                {submission.type !== 'teacher' && (
+                                    <div className="flex bg-secondary p-1 rounded-xl shadow-inner">
+                                        <button
+                                            onClick={() => setActiveTab('edit')}
+                                            className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'edit' ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                                        >
+                                            Редактор
+                                        </button>
+                                        <button
+                                            onClick={() => setActiveTab('preview')}
+                                            className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'preview' ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                                        >
+                                            Превью
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
 
                             {submission.type === 'teacher' ? (
                                 <div className="space-y-4">
@@ -272,25 +335,34 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
                                     </div>
                                 </div>
                             ) : (
-                                <div className="border border-border rounded-[2rem] overflow-hidden bg-card shadow-xl shadow-black/5">
-                                    <div className="flex items-center gap-1 p-2 bg-secondary/50 border-b border-border overflow-x-auto no-scrollbar">
-                                        <button onClick={() => insertText('# ', '')} className="p-2.5 hover:bg-muted rounded-xl" title="H1"><Heading1 size={18} /></button>
-                                        <button onClick={() => insertText('## ', '')} className="p-2.5 hover:bg-muted rounded-xl" title="H2"><Heading2 size={18} /></button>
-                                        <div className="w-px h-6 bg-border mx-1" />
-                                        <button onClick={() => insertText('**', '**')} className="p-2.5 hover:bg-muted rounded-xl" title="Жирный"><Bold size={18} /></button>
-                                        <button onClick={() => insertText('*', '*')} className="p-2.5 hover:bg-muted rounded-xl" title="Курсив"><Italic size={18} /></button>
-                                        <div className="w-px h-6 bg-border mx-1" />
-                                        <button onClick={() => insertText('- ', '')} className="p-2.5 hover:bg-muted rounded-xl" title="Список"><List size={18} /></button>
-                                        <button onClick={() => insertText('[', '](url)')} className="p-2.5 hover:bg-muted rounded-xl" title="Ссылка"><LinkIcon size={18} /></button>
-                                    </div>
-                                    <textarea
-                                        id="editor-textarea"
-                                        value={content}
-                                        onChange={(e) => setContent(e.target.value)}
-                                        rows={15}
-                                        placeholder="Начни писать здесь..."
-                                        className="w-full bg-transparent border-none p-6 focus:ring-0 outline-none resize-none font-mono text-sm leading-relaxed"
-                                    />
+                                <div className="border border-border rounded-[2rem] overflow-hidden bg-card shadow-xl shadow-black/5 min-h-[500px] flex flex-col">
+                                    {activeTab === 'edit' ? (
+                                        <>
+                                            <div className="flex items-center gap-1 p-2 bg-secondary/50 border-b border-border overflow-x-auto no-scrollbar">
+                                                <button onClick={() => insertText('# ', '')} className="p-2.5 hover:bg-muted rounded-xl" title="H1"><Heading1 size={18} /></button>
+                                                <button onClick={() => insertText('## ', '')} className="p-2.5 hover:bg-muted rounded-xl" title="H2"><Heading2 size={18} /></button>
+                                                <div className="w-px h-6 bg-border mx-1" />
+                                                <button onClick={() => insertText('**', '**')} className="p-2.5 hover:bg-muted rounded-xl" title="Жирный"><Bold size={18} /></button>
+                                                <button onClick={() => insertText('*', '*')} className="p-2.5 hover:bg-muted rounded-xl" title="Курсив"><Italic size={18} /></button>
+                                                <div className="w-px h-6 bg-border mx-1" />
+                                                <button onClick={() => insertText('- ', '')} className="p-2.5 hover:bg-muted rounded-xl" title="Список"><List size={18} /></button>
+                                                <button onClick={() => insertText('[', '](url)')} className="p-2.5 hover:bg-muted rounded-xl" title="Ссылка"><LinkIcon size={18} /></button>
+                                            </div>
+                                            <textarea
+                                                id="editor-textarea"
+                                                value={content}
+                                                onChange={(e) => setContent(e.target.value)}
+                                                rows={15}
+                                                placeholder="Начни писать здесь..."
+                                                className="w-full bg-transparent border-none p-6 focus:ring-0 outline-none resize-none font-mono text-sm leading-relaxed flex-grow"
+                                            />
+                                        </>
+                                    ) : (
+                                        <div className="p-8 bg-background h-full overflow-y-auto max-h-[600px] no-scrollbar">
+                                            <h2 className="text-3xl font-black mb-10 tracking-tight">{title || 'Заголовок конспекта'}</h2>
+                                            <SummaryRenderer data={parseMarkdownToBlocks(content)} />
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
