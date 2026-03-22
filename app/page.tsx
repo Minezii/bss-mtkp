@@ -2,17 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import {
-  Search,
-  FileText,
-  Download,
-  RefreshCcw,
-  GraduationCap,
-  Send,
-  Clock,
-  Sparkles,
-  BookOpen
-} from 'lucide-react';
+import { Search, FileText, Download, GraduationCap, RefreshCcw, Sparkles, Clock, BookOpen, Zap, Send } from 'lucide-react';
 
 interface Material {
   id: string;
@@ -212,31 +202,28 @@ export default function Home() {
               <div
                 key={s.id}
                 onClick={() => router.push(`/summary/${s.uuid}`)}
-                className="group bg-primary/5 border border-primary/10 rounded-2xl p-6 hover:shadow-xl hover:border-primary/30 transition-all cursor-pointer relative overflow-hidden"
+                className="group bg-[#5865F2]/5 border border-[#5865F2]/10 rounded-2xl p-6 hover:shadow-xl hover:border-[#5865F2]/30 transition-all cursor-pointer relative overflow-hidden"
               >
-                <div className="absolute top-0 right-0 p-1 bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-tighter transform rotate-45 translate-x-[40%] translate-y-[20%] w-24 text-center">
-                  AI Spark
-                </div>
                 <div className="flex justify-between items-start mb-4">
-                  <div className="p-3 bg-primary text-primary-foreground rounded-xl shadow-lg shadow-primary/20">
-                    <Sparkles size={24} />
+                  <div className="p-3 bg-[#5865F2] text-white rounded-xl shadow-lg shadow-[#5865F2]/20">
+                    <Zap size={24} />
                   </div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-1 rounded">
-                    Конспект ИИ
+                  <span className="text-[10px] font-black uppercase tracking-[0.1em] text-[#5865F2] bg-[#5865F2]/10 px-3 py-1.5 rounded-full border border-[#5865F2]/20">
+                    MADE BY ИРМИС
                   </span>
                 </div>
-                <h3 className="text-xl font-bold mb-2 line-clamp-2 group-hover:text-primary transition-colors pr-4">
+                <h3 className="text-xl font-bold mb-2 line-clamp-2 group-hover:text-[#5865F2] transition-colors pr-4">
                   {s.title}
                 </h3>
                 <p className="text-muted-foreground text-sm mb-6">
                   Предмет: <span className="text-foreground font-medium">{s.subject || 'Общий'}</span>
                 </p>
-                <div className="flex justify-between items-center pt-4 border-t border-primary/10">
+                <div className="flex justify-between items-center pt-4 border-t border-[#5865F2]/10">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground">
                     <Clock size={14} />
                     {new Date(s.createdAt).toLocaleDateString()}
                   </div>
-                  <span className="text-xs font-bold px-2 py-1 bg-primary/10 text-primary rounded-md">
+                  <span className="text-xs font-bold px-2 py-1 bg-[#5865F2]/10 text-[#5865F2] rounded-md">
                     {s.course} курс
                   </span>
                 </div>
