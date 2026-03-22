@@ -6,31 +6,11 @@ import katex from "katex";
 import renderMathInElement from "katex/contrib/auto-render";
 import "katex/dist/katex.min.css";
 
-// Static imports for tools (safely handled by Next.js if they don't use window at top-level)
-// @ts-ignore
-import Header from "@editorjs/header";
-// @ts-ignore
-import List from "@editorjs/list";
-// @ts-ignore
-import Paragraph from "@editorjs/paragraph";
-// @ts-ignore
-import Delimiter from "@editorjs/delimiter";
-// @ts-ignore
-import CodeTool from "@editorjs/code";
-// @ts-ignore
-import Quote from "@editorjs/quote";
-// @ts-ignore
-import Marker from "@editorjs/marker";
-// @ts-ignore
-import InlineCode from "@editorjs/inline-code";
-// @ts-ignore
-import Table from "@editorjs/table";
-
 interface SummaryRendererProps {
     data: any;
 }
 
-// Custom AnyButton tool for Editor.js (Compatible with official renderer)
+// Custom AnyButton tool for Editor.js
 class AnyButtonTool {
     static get isReadOnly() { return true; }
     data: any;
@@ -109,41 +89,45 @@ export default function SummaryRenderer({ data }: SummaryRendererProps) {
 
         const initEditor = async () => {
             try {
-                // Load EditorJS dynamically only on client
+                // Exact author imports
                 const EditorJS = (await import("@editorjs/editorjs")).default;
+                const Header = (await import("@editorjs/header")).default;
+                const List = (await import("@editorjs/list")).default;
+                const Paragraph = (await import("@editorjs/paragraph")).default;
+                const Delimiter = (await import("@editorjs/delimiter")).default;
+                const CodeTool = (await import("@editorjs/code")).default;
+                const Quote = (await import("@editorjs/quote")).default;
+                const Marker = (await import("@editorjs/marker")).default;
+                const InlineCode = (await import("@editorjs/inline-code")).default;
+                const Table = (await import("@editorjs/table")).default;
 
-                if (editorRef.current) {
-                    if (typeof editorRef.current.destroy === 'function') {
-                        await editorRef.current.destroy();
-                    }
-                    editorRef.current = null;
+                if (!editorRef.current) {
+                    const editor = new EditorJS({
+                        holder: containerRef.current,
+                        readOnly: true,
+                        autofocus: true,
+                        data: data,
+                        tools: {
+                            table: Table,
+                            header: { class: Header, inlineToolbar: true },
+                            list: { class: List, inlineToolbar: true },
+                            paragraph: { class: Paragraph, inlineToolbar: true },
+                            quote: { class: Quote, inlineToolbar: true },
+                            delimiter: Delimiter,
+                            code: CodeTool,
+                            marker: Marker,
+                            inlineCode: InlineCode,
+                            anyButton: AnyButtonTool as any,
+                        },
+                        onReady: () => {
+                            if (containerRef.current) {
+                                renderAllFormulas(containerRef.current);
+                            }
+                        },
+                    });
+
+                    editorRef.current = editor;
                 }
-
-                const editor = new EditorJS({
-                    holder: "editorjs",
-                    readOnly: true,
-                    autofocus: true,
-                    data: data,
-                    tools: {
-                        table: Table,
-                        header: { class: Header, inlineToolbar: true },
-                        list: { class: List, inlineToolbar: true },
-                        paragraph: { class: Paragraph, inlineToolbar: true },
-                        quote: { class: Quote, inlineToolbar: true },
-                        delimiter: Delimiter,
-                        code: CodeTool,
-                        marker: Marker,
-                        inlineCode: InlineCode,
-                        anyButton: AnyButtonTool as any,
-                    },
-                    onReady: () => {
-                        if (containerRef.current) {
-                            renderAllFormulas(containerRef.current);
-                        }
-                    },
-                });
-
-                editorRef.current = editor;
             } catch (err) {
                 console.error("Failed to initialize EditorJS:", err);
             }
