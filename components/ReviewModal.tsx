@@ -46,8 +46,8 @@ export default function ReviewModal({ teacherId, teacherName, isOpen, onClose, o
                 const myReview = reviews.find((r: any) => r.userId === user.id);
                 if (myReview) {
                     setRatings({
-                        lectures: myReview.lecturesRating,
-                        exams: myReview.examsRating,
+                        lectures: 5 - myReview.lecturesRating,
+                        exams: 5 - myReview.examsRating,
                         clarity: myReview.clarityRating,
                         fairness: myReview.fairnessRating
                     });
@@ -79,8 +79,8 @@ export default function ReviewModal({ teacherId, teacherName, isOpen, onClose, o
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     content,
-                    lecturesRating: ratings.lectures,
-                    examsRating: ratings.exams,
+                    lecturesRating: 5 - ratings.lectures,
+                    examsRating: 5 - ratings.exams,
                     clarityRating: ratings.clarity,
                     fairnessRating: ratings.fairness,
                     isRecommended

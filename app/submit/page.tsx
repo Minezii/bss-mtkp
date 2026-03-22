@@ -12,26 +12,30 @@ export default function SubmitPage() {
     const [isSuccess, setIsSuccess] = useState(false);
 
     const [checkId, setCheckId] = useState<string | null>(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
 
-        const formData = new FormData(e.target as HTMLFormElement);
+        const form = e.target as HTMLFormElement;
+        const formData = new FormData(form);
         const data = {
             type,
             title: formData.get('title'),
             author: formData.get('name'),
             group: formData.get('group'),
             content: formData.get('desc'),
-            fileUrl: '',
+            fileUrl: selectedFile ? `[attached: ${selectedFile.name}]` : '',
         };
 
         try {
             const res = await fetch('/api/submit', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
+                // When sending FormData, the 'Content-Type' header is usually set automatically by the browser
+                // to 'multipart/form-data' with the correct boundary.
+                // Explicitly setting 'Content-Type': 'application/json' would be incorrect here.
+                body: formData, // Send FormData directly
             });
 
             if (res.ok) {
@@ -89,6 +93,7 @@ export default function SubmitPage() {
             </header>
 
             <form onSubmit={handleSubmit} className="bg-card border border-border rounded-3xl p-6 md:p-8 space-y-6 shadow-xl shadow-black/5">
+                <input type="hidden" name="type" value={type} />
                 <div className="space-y-4">
                     <label className="text-sm font-black uppercase tracking-widest text-muted-foreground">Что добавляем?</label>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -160,11 +165,38 @@ export default function SubmitPage() {
 
                     <div className="space-y-2">
                         <label className="text-sm font-bold ml-1">Прикрепить файл (если есть)</label>
-                        <div className="border-2 border-dashed border-border rounded-xl p-8 transition-colors hover:border-primary/50 text-center cursor-pointer group">
-                            <Upload className="mx-auto text-muted-foreground group-hover:text-primary transition-colors mb-2" />
-                            <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors uppercase font-black tracking-widest">Выбери файл</p>
-                            <p className="text-xs text-muted-foreground mt-1 underline">PDF, DOCX, PNG до 20MB</p>
-                        </div>
+                        <input
+                            type="file"
+                            id="file-upload"
+                            name="file"
+                            className="hidden"
+                            onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                            accept=".pdf,.docx,.png,.jpg,.jpeg"
+                        />
+                        <label
+                            htmlFor="file-upload"
+                            className="block border-2 border-dashed border-border rounded-xl p-8 transition-all hover:border-primary/50 text-center cursor-pointer group hover:bg-primary/5 active:scale-[0.99]"
+                        >
+                            <Upload className={`mx-auto transition-colors mb-2 ${selectedFile ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`} />
+                            <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors uppercase font-black tracking-widest">
+                                {selectedFile ? selectedFile.name : 'Выбери файл'}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1 underline">
+                                {selectedFile ? `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB` : 'PDF, DOCX, PNG до 20MB'}
+                            </p>
+                            {selectedFile && (
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        setSelectedFile(null);
+                                    }}
+                                    className="mt-4 text-xs font-bold text-destructive hover:underline"
+                                >
+                                    Удалить файл
+                                </button>
+                            )}
+                        </label>
                     </div>
                 </div>
 

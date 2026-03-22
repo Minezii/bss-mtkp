@@ -45,10 +45,10 @@ export async function POST(
             isRecommended
         } = await request.json();
 
-        // Validate individual ratings
+        // Validate individual ratings (0-5 range now allowed for inverted metrics)
         const ratings = [lecturesRating, examsRating, clarityRating, fairnessRating];
-        if (ratings.some(r => r < 1 || r > 5)) {
-            return NextResponse.json({ error: 'All ratings must be between 1 and 5' }, { status: 400 });
+        if (ratings.some(r => r < 0 || r > 5)) {
+            return NextResponse.json({ error: 'All ratings must be between 0 and 5' }, { status: 400 });
         }
 
         // Calculate overall rating for this review (average of 4)

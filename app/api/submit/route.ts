@@ -4,8 +4,16 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
     const prisma = (await import('@/lib/prisma')).default;
     try {
-        const body = await request.json();
-        const { type, title, author, content, fileUrl, group } = body;
+        const formData = await request.formData();
+        const type = formData.get('type') as string;
+        const title = formData.get('title') as string;
+        const author = formData.get('name') as string;
+        const content = formData.get('desc') as string;
+        const group = formData.get('group') as string;
+
+        // We'll store the filename in fileUrl for now since we don't have actual storage
+        const file = formData.get('file') as File | null;
+        const fileUrl = file ? `[attached: ${file.name}]` : null;
 
         if (!type || !title || !content) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
