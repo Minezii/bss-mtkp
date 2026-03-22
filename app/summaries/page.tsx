@@ -5,13 +5,20 @@ import { useRouter } from 'next/navigation';
 import { Search, BookOpen, ArrowRight, Sparkles, BookText } from 'lucide-react';
 
 export default function SummariesEntryPage() {
-    const [uuid, setUuid] = useState('');
+    const [inputValue, setInputValue] = useState('');
     const router = useRouter();
+
+    const extractUuid = (str: string) => {
+        const uuidRegex = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+        const match = str.match(uuidRegex);
+        return match ? match[0] : str.trim();
+    };
 
     const handleOpen = (e: React.FormEvent) => {
         e.preventDefault();
-        if (uuid.trim()) {
-            router.push(`/summary/${uuid.trim()}`);
+        const extracted = extractUuid(inputValue);
+        if (extracted) {
+            router.push(`/summary/${extracted}`);
         }
     };
 
@@ -28,7 +35,7 @@ export default function SummariesEntryPage() {
                 </h1>
 
                 <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-                    Вставь UUID конспекта, полученный ботом, чтобы просмотреть его в удобном формате.
+                    Вставь ссылку на конспект или его UUID, чтобы просмотреть его в удобном формате.
                 </p>
 
                 <form onSubmit={handleOpen} className="relative group max-w-lg mx-auto w-full pt-4">
@@ -38,9 +45,9 @@ export default function SummariesEntryPage() {
                             <BookText className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
                             <input
                                 type="text"
-                                value={uuid}
-                                onChange={(e) => setUuid(e.target.value)}
-                                placeholder="Вставьте UUID конспекта..."
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                placeholder="Вставьте ссылку на конспект..."
                                 className="w-full bg-secondary/50 border-none rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-2 focus:ring-primary transition-all font-mono text-sm"
                             />
                         </div>
