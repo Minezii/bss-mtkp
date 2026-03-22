@@ -53,6 +53,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                     setFormData({ ...formData, password: '', confirmPassword: '' });
                     alert('Регистрация успешна! Теперь вы можете войти.');
                 } else {
+                    localStorage.setItem('bss_user', JSON.stringify(data.user));
                     onSuccess(data.user);
                     onClose();
                 }

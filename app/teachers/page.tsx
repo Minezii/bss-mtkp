@@ -231,10 +231,10 @@ export default function TeachersPage() {
             <AuthModal
                 isOpen={isAuthModalOpen}
                 onClose={() => setIsAuthModalOpen(false)}
-                onSuccess={() => {
-                    const savedUser = localStorage.getItem('bss_user');
-                    if (savedUser) setUser(JSON.parse(savedUser));
-                    window.location.reload();
+                onSuccess={(userData) => {
+                    setUser(userData);
+                    // Force a hard reload to ensure all cookies are picked up by potential server components/middleware
+                    window.location.href = window.location.href;
                 }}
             />
         </div>
