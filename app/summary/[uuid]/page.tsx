@@ -17,6 +17,7 @@ export default function SummaryPage() {
     const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
     const [isPublished, setIsPublished] = useState(false);
     const [justPublished, setJustPublished] = useState(false);
+    const [checkingStatus, setCheckingStatus] = useState(true);
 
     useEffect(() => {
         if (uuid) {
@@ -35,6 +36,8 @@ export default function SummaryPage() {
             }
         } catch (err) {
             console.error('Error checking publication status:', err);
+        } finally {
+            setCheckingStatus(false);
         }
     };
 
@@ -84,26 +87,24 @@ export default function SummaryPage() {
                     </button>
 
                     <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-2">
-                            {!isPublished && (
-                                <button
-                                    onClick={() => setIsPublishModalOpen(true)}
-                                    disabled={loading || !summary}
-                                    className="p-3 rounded-2xl border-2 border-primary bg-primary text-primary-foreground transition-all flex items-center gap-2 font-bold text-sm hover:scale-105 active:scale-95 shadow-lg shadow-primary/20"
-                                >
-                                    <Globe size={20} />
-                                    <span className="hidden md:inline">На сайт для всех</span>
-                                </button>
-                            )}
-
+                        {!checkingStatus && !isPublished && (
                             <button
-                                onClick={handleShare}
-                                className="p-3 bg-secondary rounded-2xl border-2 border-transparent hover:border-primary/20 transition-all text-secondary-foreground"
-                                title="Поделиться"
+                                onClick={() => setIsPublishModalOpen(true)}
+                                disabled={loading || !summary}
+                                className="p-3 rounded-2xl border-2 border-primary bg-primary text-primary-foreground transition-all flex items-center gap-2 font-bold text-sm hover:scale-105 active:scale-95 shadow-lg shadow-primary/20"
                             >
-                                <Share2 size={24} />
+                                <Globe size={20} />
+                                <span className="hidden md:inline">На сайт для всех</span>
                             </button>
-                        </div>
+                        )}
+
+                        <button
+                            onClick={handleShare}
+                            className="p-3 bg-secondary rounded-2xl border-2 border-transparent hover:border-primary/20 transition-all text-secondary-foreground"
+                            title="Поделиться"
+                        >
+                            <Share2 size={24} />
+                        </button>
                     </div>
                 </div>
                 {justPublished && (
@@ -220,7 +221,7 @@ export default function SummaryPage() {
                     title: summary?.name || 'AI Конспект'
                 }}
             />
-        </div>
+        </div >
     );
 }
 
