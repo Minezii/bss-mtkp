@@ -1,165 +1,160 @@
 'use client';
 
-import { useRef, useEffect } from "react";
-import katex from "katex";
+import { useEffect, useRef } from 'react';
+import { Send, Globe, Quote } from 'lucide-react';
 // @ts-ignore
 import renderMathInElement from "katex/contrib/auto-render";
 import "katex/dist/katex.min.css";
 
-interface SummaryRendererProps {
+interface Block {
+    type: string;
     data: any;
 }
 
-// Custom AnyButton tool for Editor.js
-class AnyButtonTool {
-    static get isReadOnly() { return true; }
-    data: any;
-    constructor({ data }: { data: any }) {
-        this.data = data;
-    }
-    render() {
-        const div = document.createElement('div');
-        div.className = 'my-10 flex justify-center';
-        const a = document.createElement('a');
-        a.href = this.data.link;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        a.className = 'bg-[#5865F2] text-white px-8 py-4 rounded-2xl font-bold hover:scale-105 transition-all active:scale-95 shadow-lg shadow-[#5865F2]/20 flex items-center gap-2 no-underline';
-        a.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> <span>${this.data.text}</span>`;
-        div.appendChild(a);
-        return div;
-    }
+interface SummaryRendererProps {
+    data: {
+        blocks: Block[];
+    };
 }
 
 export default function SummaryRenderer({ data }: SummaryRendererProps) {
-    const editorRef = useRef<any>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const renderAllFormulas = (container: HTMLElement) => {
-        renderMathInElement(container, {
-            delimiters: [
-                { left: "$$", right: "$$", display: true },
-                { left: "$", right: "$", display: false },
-            ],
-            throwOnError: false,
-        });
-
-        container
-            .querySelectorAll(".katex")
-            .forEach((el) => makeFormulaEditable(el as HTMLElement));
-    };
-
-    const makeFormulaEditable = (el: HTMLElement) => {
-        if (el.dataset.editable) return;
-
-        el.addEventListener("dblclick", () => {
-            const latex = el.getAttribute("data-tex");
-
-            const input = document.createElement("input");
-            input.value = latex || "";
-            input.style.width = "100%";
-
-            el.replaceWith(input);
-            input.focus();
-
-            input.addEventListener("blur", () => {
-                const newLatex = input.value;
-
-                const span = document.createElement("span");
-                span.setAttribute("data-tex", newLatex);
-                span.classList.add("katex-placeholder");
-
-                input.replaceWith(span);
-
-                try {
-                    katex.render(newLatex, span, { throwOnError: false });
-                } catch {
-                    span.textContent = newLatex;
-                }
-
-                makeFormulaEditable(span);
-            });
-        });
-
-        el.dataset.editable = "true";
-    };
-
     useEffect(() => {
-        if (!containerRef.current || !data) return;
-
-        const initEditor = async () => {
+        if (containerRef.current) {
             try {
-                // Exact author imports
-                const EditorJS = (await import("@editorjs/editorjs")).default;
-                const Header = (await import("@editorjs/header")).default;
-                const List = (await import("@editorjs/list")).default;
-                const Paragraph = (await import("@editorjs/paragraph")).default;
-                const Delimiter = (await import("@editorjs/delimiter")).default;
-                const CodeTool = (await import("@editorjs/code")).default;
-                const Quote = (await import("@editorjs/quote")).default;
-                const Marker = (await import("@editorjs/marker")).default;
-                const InlineCode = (await import("@editorjs/inline-code")).default;
-                const Table = (await import("@editorjs/table")).default;
-
-                if (!editorRef.current) {
-                    const editor = new EditorJS({
-                        holder: containerRef.current,
-                        readOnly: true,
-                        autofocus: true,
-                        data: data,
-                        tools: {
-                            table: Table as any,
-                            header: { class: Header as any, inlineToolbar: true },
-                            list: { class: List as any, inlineToolbar: true },
-                            paragraph: { class: Paragraph as any, inlineToolbar: true },
-                            quote: { class: Quote as any, inlineToolbar: true },
-                            delimiter: Delimiter as any,
-                            code: CodeTool as any,
-                            marker: Marker as any,
-                            inlineCode: InlineCode as any,
-                            anyButton: AnyButtonTool as any,
-                        },
-                        onReady: () => {
-                            if (containerRef.current) {
-                                renderAllFormulas(containerRef.current);
-                            }
-                        },
-                    });
-
-                    editorRef.current = editor;
-                }
+                renderMathInElement(containerRef.current, {
+                    delimiters: [
+                        { left: "$$", right: "$$", display: true },
+                        { left: "$", right: "$", display: false },
+                    ],
+                    throwOnError: false,
+                });
             } catch (err) {
-                console.error("Failed to initialize EditorJS:", err);
+                console.error("KaTeX rendering error:", err);
             }
-        };
-
-        if (typeof window !== "undefined") {
-            initEditor();
         }
-
-        return () => {
-            if (editorRef.current && typeof editorRef.current.destroy === 'function') {
-                editorRef.current.destroy();
-                editorRef.current = null;
-            }
-        };
     }, [data]);
 
+    if (!data?.blocks) return (
+        <div className="py-20 text-center text-muted-foreground bg-secondary/10 rounded-3xl border border-dashed border-border">
+            <p className="font-medium">Конспект пуст или ожидает обработки</p>
+        </div>
+    );
+
     return (
-        <div className="prose prose-blue dark:prose-invert max-w-none">
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                .ce-block__content { max-width: 100% !important; margin: 0 !important; }
-                .codex-editor__redactor { padding-bottom: 0 !important; margin-right: 0 !important; }
-                .ce-header { font-weight: 800; margin-top: 2rem; margin-bottom: 1rem; color: inherit; }
-                .ce-paragraph { font-size: 1.125rem; line-height: 1.75; color: hsl(var(--foreground) / 0.9); }
-                .ce-code__textarea { background: #0d1117 !important; color: #e6edf3 !important; border-radius: 1rem !important; }
-                .ce-table { border-collapse: collapse; margin: 2rem 0; width: 100%; border: 1px solid hsl(var(--border) / 0.5); }
-                .ce-table__cell { border: 1px solid hsl(var(--border) / 0.5); padding: 0.75rem; }
-                .tc-row--header { background: hsl(var(--secondary) / 0.5); font-weight: bold; }
-                .katex-placeholder { display: inline-block; min-width: 1em; }
-            `}} />
-            <div id="editorjs" ref={containerRef} className="min-h-[200px]" />
+        <div ref={containerRef} className="space-y-8 pb-20 mt-8">
+            {data.blocks.map((block, index) => {
+                switch (block.type) {
+                    case 'header':
+                        const level = block.data.level || 2;
+                        const headerContent = <span dangerouslySetInnerHTML={{ __html: block.data.text }} />;
+                        const hClasses = {
+                            1: 'text-4xl font-black mt-16 mb-8 text-foreground pb-4 border-b-4 border-primary/20',
+                            2: 'text-3xl font-black mt-12 mb-6 text-foreground/90 flex items-center gap-3',
+                            3: 'text-2xl font-black mt-8 mb-4 text-foreground/80'
+                        }[level as 1 | 2 | 3] || 'text-xl font-bold';
+
+                        if (level === 1) return <h1 key={index} className={hClasses}>{headerContent}</h1>;
+                        if (level === 3) return <h3 key={index} className={hClasses}>{headerContent}</h3>;
+                        return (
+                            <h2 key={index} className={`${hClasses} relative`}>
+                                <span className="absolute -left-4 top-0 bottom-0 w-1 bg-primary rounded-full hidden md:block" />
+                                {headerContent}
+                            </h2>
+                        );
+
+                    case 'paragraph':
+                        return (
+                            <p key={index} className="text-lg leading-relaxed text-foreground/85 font-medium" dangerouslySetInnerHTML={{ __html: block.data.text }} />
+                        );
+
+                    case 'list':
+                        return (
+                            <ul key={index} className={`space-y-3 ${block.data.style === 'ordered' ? 'list-decimal' : 'list-none'} ml-6 my-6`}>
+                                {block.data.items.map((item: any, i: number) => {
+                                    const content = typeof item === 'string' ? item : item.content;
+                                    return (
+                                        <li key={i} className="flex gap-3 text-lg leading-relaxed group">
+                                            {block.data.style !== 'ordered' && <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2.5 flex-shrink-0 group-hover:scale-150 transition-transform" />}
+                                            <span className="flex-1" dangerouslySetInnerHTML={{ __html: content }} />
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        );
+
+                    case 'delimiter':
+                        return (
+                            <div key={index} className="flex justify-center py-12">
+                                <div className="flex gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-primary/20" />
+                                    <div className="w-2 h-2 rounded-full bg-primary/40" />
+                                    <div className="w-2 h-2 rounded-full bg-primary/20" />
+                                </div>
+                            </div>
+                        );
+
+                    case 'code':
+                        return (
+                            <div key={index} className="relative group my-8">
+                                <pre className="bg-[#0D1117] text-[#E6EDF3] p-6 rounded-2xl overflow-x-auto border border-white/5 font-mono text-sm leading-relaxed shadow-2xl">
+                                    <code>{block.data.code}</code>
+                                </pre>
+                                <div className="absolute top-4 right-4 text-xs font-bold text-white/30 uppercase tracking-widest group-hover:text-white/60 transition-colors">Code</div>
+                            </div>
+                        );
+
+                    case 'quote':
+                        return (
+                            <blockquote key={index} className="relative px-10 py-8 my-10 bg-secondary/30 rounded-3xl border-l-8 border-primary italic shadow-sm overflow-hidden">
+                                <Quote size={40} className="absolute -top-2 -left-2 text-primary opacity-10 rotate-180" />
+                                <p className="text-xl font-medium leading-relaxed z-10 relative" dangerouslySetInnerHTML={{ __html: block.data.text }} />
+                                {block.data.caption && <cite className="block mt-4 text-sm font-bold text-muted-foreground not-italic uppercase tracking-widest">— {block.data.caption}</cite>}
+                            </blockquote>
+                        );
+
+                    case 'anyButton':
+                        return (
+                            <div key={index} className="my-12 flex justify-center">
+                                <a
+                                    href={block.data.link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="bg-[#5865F2] text-white px-10 py-5 rounded-2xl font-black text-lg hover:scale-105 transition-all active:scale-95 shadow-xl shadow-[#5865F2]/20 flex items-center gap-3 no-underline group"
+                                >
+                                    <Send size={24} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                                    {block.data.text}
+                                </a>
+                            </div>
+                        );
+
+                    case 'linkTool':
+                        return (
+                            <div key={index} className="mb-10 p-6 bg-secondary/20 rounded-3xl border border-border/50 hover:bg-secondary/40 transition-all group overflow-hidden relative">
+                                <a href={block.data.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-6 no-underline">
+                                    <div className="flex-grow min-w-0 z-10">
+                                        <h4 className="font-black text-xl mb-2 group-hover:text-primary transition-colors line-clamp-1">{block.data.meta?.title || block.data.link}</h4>
+                                        {block.data.meta?.description && <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{block.data.meta.description}</p>}
+                                        <div className="flex items-center gap-2 mt-4 text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                                            <Globe size={14} />
+                                            <span>{new URL(block.data.link).hostname}</span>
+                                        </div>
+                                    </div>
+                                    {block.data.meta?.image?.url && (
+                                        <div className="w-32 h-32 flex-shrink-0 rounded-2xl overflow-hidden hidden sm:block shadow-lg group-hover:scale-105 transition-transform">
+                                            <img src={block.data.meta.image.url} alt="" className="w-full h-full object-cover" />
+                                        </div>
+                                    )}
+                                </a>
+                            </div>
+                        );
+
+                    default:
+                        console.log("Unknown block type:", block.type);
+                        return null;
+                }
+            })}
         </div>
     );
 }

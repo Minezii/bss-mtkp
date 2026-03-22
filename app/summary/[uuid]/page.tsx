@@ -19,15 +19,6 @@ import {
 import SummaryRenderer from '@/components/SummaryRenderer';
 import PublishSummaryModal from '@/components/PublishSummaryModal';
 
-const LOADING_PHRASES = [
-    "Загрузка конспекта...",
-    "Почти готово...",
-    "Обработка данных...",
-    "Секундочку...",
-    "Генерируем красоту...",
-    "Ищем знания...",
-];
-
 export default function SummaryPage() {
     const { uuid } = useParams() as { uuid: string };
     const router = useRouter();
@@ -39,27 +30,6 @@ export default function SummaryPage() {
     const [isPublished, setIsPublished] = useState(false);
     const [justPublished, setJustPublished] = useState(false);
     const [checkingStatus, setCheckingStatus] = useState(true);
-
-    const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
-    const [fade, setFade] = useState(true);
-
-    useEffect(() => {
-        if (!loading) return;
-        const interval = setInterval(() => {
-            setFade(false);
-            setTimeout(() => {
-                setCurrentPhraseIndex((prev) => {
-                    let next;
-                    do {
-                        next = Math.floor(Math.random() * LOADING_PHRASES.length);
-                    } while (next === prev);
-                    return next;
-                });
-                setFade(true);
-            }, 250);
-        }, 2000);
-        return () => clearInterval(interval);
-    }, [loading]);
 
     useEffect(() => {
         if (uuid) {
@@ -159,13 +129,10 @@ export default function SummaryPage() {
 
             <main className="max-w-4xl mx-auto px-4 pt-12">
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center py-20 text-center">
-                        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-8 animate-bounce">
-                            <Sparkles size={32} className="text-primary" />
-                        </div>
-                        <div className={`text-lg font-medium transition-opacity duration-500 ${fade ? "opacity-100" : "opacity-0"}`}>
-                            {LOADING_PHRASES[currentPhraseIndex]}
-                        </div>
+                    <div className="flex flex-col items-center justify-center py-20 animate-pulse text-muted-foreground">
+                        <RefreshCcw size={48} className="animate-spin mb-4 text-primary" />
+                        <p className="font-bold text-lg">Генерируем красоту...</p>
+                        <p className="text-sm">Это может занять пару секунд</p>
                     </div>
                 ) : error ? (
                     <div className="flex flex-col items-center justify-center py-20 text-center max-w-md mx-auto">
