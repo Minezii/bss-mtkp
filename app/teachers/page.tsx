@@ -217,6 +217,7 @@ export default function TeachersPage() {
                             // setSelectedTeacher(null); // Keep it for a bit to avoid flicker if needed
                         }}
                         onSuccess={fetchTeachers}
+                        user={user}
                     />
                     <CommentsModal
                         teacherId={selectedTeacher.id}

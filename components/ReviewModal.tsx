@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, ThumbsUp, ThumbsDown } from 'lucide-react';
 import StarRating from './StarRating';
 
@@ -10,9 +10,10 @@ interface ReviewModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: () => void;
+    user: any;
 }
 
-export default function ReviewModal({ teacherId, teacherName, isOpen, onClose, onSuccess }: ReviewModalProps) {
+export default function ReviewModal({ teacherId, teacherName, isOpen, onClose, onSuccess, user }: ReviewModalProps) {
     const [ratings, setRatings] = useState({
         lectures: 0,
         exams: 0,
@@ -23,6 +24,42 @@ export default function ReviewModal({ teacherId, teacherName, isOpen, onClose, o
     const [isRecommended, setIsRecommended] = useState(true);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [isEditing, setIsEditing] = useState(false);
+
+    useEffect(() => {
+        if (isOpen && teacherId && user) {
+            fetchExistingReview();
+        } else if (!isOpen) {
+            // Reset when closing
+            setRatings({ lectures: 0, exams: 0, clarity: 0, fairness: 0 });
+            setContent('');
+            setIsRecommended(true);
+            setIsEditing(false);
+        }
+    }, [isOpen, teacherId, user]);
+
+    const fetchExistingReview = async () => {
+        try {
+            const res = await fetch(`/api/teachers/${teacherId}/reviews`);
+            if (res.ok) {
+                const reviews = await res.json();
+                const myReview = reviews.find((r: any) => r.userId === user.id);
+                if (myReview) {
+                    setRatings({
+                        lectures: myReview.lecturesRating,
+                        exams: myReview.examsRating,
+                        clarity: myReview.clarityRating,
+                        fairness: myReview.fairnessRating
+                    });
+                    setContent(myReview.content || '');
+                    setIsRecommended(myReview.isRecommended);
+                    setIsEditing(true);
+                }
+            }
+        } catch (err) {
+            console.error('Failed to fetch existing review:', err);
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -155,7 +192,7 @@ export default function ReviewModal({ teacherId, teacherName, isOpen, onClose, o
                         disabled={loading}
                         className="w-full bg-primary text-primary-foreground font-bold py-4 rounded-2xl hover:opacity-90 transition-opacity active:scale-95 disabled:opacity-50 shadow-lg shadow-primary/20"
                     >
-                        {loading ? 'Отправка...' : 'Опубликовать'}
+                        {loading ? 'Отправка...' : (isEditing ? 'Изменить отзыв' : 'Опубликовать')}
                     </button>
                 </form>
             </div>
