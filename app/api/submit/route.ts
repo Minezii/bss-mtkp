@@ -3,7 +3,9 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
     const prisma = (await import('@/lib/prisma')).default;
+    const { getCurrentUser } = await import('@/lib/auth');
     try {
+        const user = await getCurrentUser();
         const formData = await request.formData();
         const type = formData.get('type') as string;
         const title = formData.get('title') as string;
@@ -28,6 +30,7 @@ export async function POST(request: Request) {
                 content: content,
                 fileUrl: fileUrl || null,
                 status: 'pending',
+                userId: user?.id || null,
             },
         });
 

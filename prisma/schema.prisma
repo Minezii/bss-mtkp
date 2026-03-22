@@ -18,6 +18,8 @@ model Submission {
   subject   String?  // New field to separate subject from content
   fileUrl   String?
   imageUrl  String?  // Photo for teachers or rich content
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id])
   status    String   @default("pending") // pending, approved, rejected, draft
   createdAt DateTime @default(now())
 }
@@ -56,6 +58,7 @@ model User {
   passwordHash String
   group        String?  // New field for groups like "ТИП 11"
   reviews      Review[]
+  submissions  Submission[]
   createdAt    DateTime @default(now())
 }
 
