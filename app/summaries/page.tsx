@@ -38,25 +38,25 @@ export default function SummariesEntryPage() {
                     Вставь ссылку на конспект или его UUID, чтобы просмотреть его в удобном формате.
                 </p>
 
-                <form onSubmit={handleOpen} className="relative group max-w-lg mx-auto w-full pt-4">
+                <form onSubmit={handleOpen} className="relative group max-w-xl mx-auto w-full pt-4">
                     <div className="absolute inset-0 bg-primary/20 blur-2xl group-hover:bg-primary/30 transition-all duration-500 rounded-full" />
-                    <div className="relative flex flex-col sm:flex-row gap-3 p-2 bg-card border border-border rounded-3xl shadow-2xl">
-                        <div className="flex-grow relative">
+                    <div className="relative flex flex-col sm:flex-row gap-3 p-2 bg-card border border-border rounded-3xl shadow-2xl items-stretch sm:items-center">
+                        <div className="flex-grow relative min-w-0">
                             <BookText className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
                             <input
                                 type="text"
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
-                                placeholder="Вставьте ссылку на конспект..."
+                                placeholder="Вставьте ссылку на конспект или UUID..."
                                 className="w-full bg-secondary/50 border-none rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-2 focus:ring-primary transition-all font-mono text-sm"
                             />
                         </div>
                         <button
                             type="submit"
-                            className="bg-primary text-primary-foreground px-8 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:scale-105 transition-all active:scale-95 shadow-lg shadow-primary/20"
+                            className="bg-primary text-primary-foreground px-6 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:scale-[1.02] transition-all active:scale-95 shadow-lg shadow-primary/20 whitespace-nowrap text-sm sm:text-base"
                         >
                             Открыть конспект из Ирмис
-                            <ArrowRight size={20} />
+                            <ArrowRight size={20} className="shrink-0" />
                         </button>
                     </div>
                 </form>
