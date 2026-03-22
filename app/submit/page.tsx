@@ -22,6 +22,7 @@ export default function SubmitPage() {
             type,
             title: formData.get('title'),
             author: formData.get('name'),
+            group: formData.get('group'),
             content: formData.get('desc'),
             fileUrl: '',
         };
@@ -130,6 +131,20 @@ export default function SubmitPage() {
                             className="w-full bg-secondary border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary outline-none text-foreground"
                         />
                     </div>
+
+                    {type === 'material' && (
+                        <div className="space-y-2 animate-in slide-in-from-left duration-300">
+                            <label htmlFor="group" className="text-sm font-bold ml-1">Группа (например, ТИП 11)</label>
+                            <input
+                                id="group"
+                                name="group"
+                                type="text"
+                                placeholder="ТИП 11"
+                                className="w-full bg-secondary border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary outline-none text-foreground"
+                            />
+                            <p className="text-[10px] text-muted-foreground ml-1">Первая цифра — семестр, вторая — подгруппа. Мы сами определим курс!</p>
+                        </div>
+                    )}
 
                     <div className="space-y-2">
                         <label htmlFor="desc" className="text-sm font-bold ml-1">Описание / Ссылка / Текст отзыва</label>

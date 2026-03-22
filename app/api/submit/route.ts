@@ -5,7 +5,7 @@ export async function POST(request: Request) {
     const prisma = (await import('@/lib/prisma')).default;
     try {
         const body = await request.json();
-        const { type, title, author, content, fileUrl } = body;
+        const { type, title, author, content, fileUrl, group } = body;
 
         if (!type || !title || !content) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -16,7 +16,8 @@ export async function POST(request: Request) {
                 type,
                 title,
                 author: author || 'Аноним',
-                content,
+                group: group || null,
+                content: content,
                 fileUrl: fileUrl || null,
                 status: 'pending',
             },

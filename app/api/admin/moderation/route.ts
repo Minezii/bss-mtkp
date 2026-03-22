@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
     const prisma = (await import('@/lib/prisma')).default;
     try {
-        const { id, action } = await request.json();
+        const { id, action, updatedData } = await request.json();
 
         if (!id || !action) {
             return NextResponse.json({ error: 'Missing id or action' }, { status: 400 });
@@ -16,33 +16,67 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Submission not found' }, { status: 404 });
         }
 
+        // Apply edits if provided
+        const finalData = {
+            title: updatedData?.title || submission.title,
+            content: updatedData?.content || submission.content,
+            group: updatedData?.group || submission.group,
+            type: updatedData?.type || submission.type,
+            fileUrl: updatedData?.fileUrl || submission.fileUrl,
+            category: updatedData?.category || 'Разное',
+            course: updatedData?.course || 1,
+        };
+
+        if (action === 'save_draft') {
+            await prisma.submission.update({
+                where: { id },
+                data: {
+                    title: finalData.title,
+                    content: finalData.content,
+                    group: finalData.group,
+                    status: 'draft'
+                }
+            });
+            return NextResponse.json({ success: true, message: 'Saved as draft' });
+        }
+
         if (action === 'approve') {
-            // Logic for moving data to the target table
             if (submission.type === 'material') {
+                // Auto-calculate course if not explicitly provided
+                let course = finalData.course;
+                if (!updatedData?.course && finalData.group) {
+                    const match = finalData.group.match(/\d/);
+                    if (match) {
+                        const semester = parseInt(match[0]);
+                        course = Math.ceil(semester / 2);
+                    }
+                }
+
                 await prisma.material.create({
                     data: {
-                        title: submission.title,
-                        course: 1, // Default or parsed from title/content
-                        category: 'Разное',
-                        subject: submission.content || 'Неизвестно',
-                        fileUrl: submission.fileUrl,
+                        title: finalData.title,
+                        group: finalData.group,
+                        course: course,
+                        category: finalData.category,
+                        subject: finalData.content || 'Неизвестно',
+                        fileUrl: finalData.fileUrl,
                     },
                 });
             } else if (submission.type === 'teacher') {
                 await prisma.teacher.create({
                     data: {
-                        name: submission.title,
-                        department: 'Общее',
-                        subjects: submission.content || '',
+                        name: finalData.title,
+                        department: updatedData?.department || 'Общее',
+                        subjects: finalData.content || '',
                     },
                 });
             } else if (submission.type === 'tool') {
                 await prisma.tool.create({
                     data: {
-                        name: submission.title,
-                        desc: submission.content || '',
-                        category: 'Разное',
-                        url: submission.fileUrl,
+                        name: finalData.title,
+                        desc: finalData.content || '',
+                        category: finalData.category,
+                        url: finalData.fileUrl,
                     },
                 });
             }

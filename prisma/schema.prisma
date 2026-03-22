@@ -13,15 +13,17 @@ model Submission {
   type      String   // material, teacher, tool
   title     String
   author    String?
+  group     String?  // New field for groups like "ТИП 11"
   content   String?  // description, link or review text
   fileUrl   String?
-  status    String   @default("pending") // pending, approved, rejected
+  status    String   @default("pending") // pending, approved, rejected, draft
   createdAt DateTime @default(now())
 }
 
 model Material {
   id        Int      @id @default(autoincrement())
   title     String
+  group     String?  // New field
   course    Int
   category  String   // Конспект, Лекция, Шпаргалка
   subject   String
