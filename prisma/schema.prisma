@@ -39,7 +39,6 @@ model Teacher {
   id             Int      @id @default(autoincrement())
   name           String
   imageUrl       String?  // Photo of the teacher
-  department     String
   subjects       String   // Comma-separated list
   lecturesRating Float    @default(0)
   examsRating    Float    @default(0)

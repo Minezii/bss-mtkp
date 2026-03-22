@@ -8,7 +8,6 @@ import ReviewModal from '@/components/ReviewModal';
 import CommentsModal from '@/components/CommentsModal';
 import AuthModal from '@/components/AuthModal';
 
-const departments: string[] = ["Информатика", "Радиоаппаратостроение", "Социально-экономическое", "Общеобразовательное"];
 
 const RatingBar = ({ label, value }: { label: string; value: number }) => (
     <div className="space-y-1">
@@ -30,7 +29,6 @@ export default function TeachersPage() {
     const [teachers, setTeachers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedDept, setSelectedDept] = useState<string | 'all'>('all');
 
     const [user, setUser] = useState<any>(null);
     const [selectedTeacher, setSelectedTeacher] = useState<any>(null);
@@ -76,8 +74,7 @@ export default function TeachersPage() {
     const filteredTeachers = teachers.filter((t: any) => {
         const matchesSearch = t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             t.subjects.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesDept = selectedDept === 'all' || t.department === selectedDept;
-        return matchesSearch && matchesDept;
+        return matchesSearch;
     });
 
     return (
@@ -101,19 +98,6 @@ export default function TeachersPage() {
                     />
                 </div>
 
-                <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 no-scrollbar">
-                    <Filter size={18} className="text-muted-foreground ml-2 min-w-[18px]" />
-                    <select
-                        value={selectedDept}
-                        onChange={(e) => setSelectedDept(e.target.value)}
-                        className="bg-secondary border-none rounded-xl py-2.5 px-4 text-sm font-bold outline-none focus:ring-2 focus:ring-primary cursor-pointer active:scale-95 transition-transform"
-                    >
-                        <option value="all">Все отделения</option>
-                        {departments.map(dept => (
-                            <option key={dept} value={dept}>{dept}</option>
-                        ))}
-                    </select>
-                </div>
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 md:gap-8">
@@ -142,7 +126,6 @@ export default function TeachersPage() {
                                 <div className="flex-grow space-y-4">
                                     <div className="text-center sm:text-left">
                                         <h2 className="text-xl md:text-2xl font-bold group-hover:text-primary transition-colors">{teacher.name}</h2>
-                                        <p className="text-muted-foreground text-xs md:text-sm font-bold uppercase tracking-wider">{teacher.department}</p>
                                     </div>
 
                                     <div className="flex flex-wrap gap-2 justify-center sm:justify-start">

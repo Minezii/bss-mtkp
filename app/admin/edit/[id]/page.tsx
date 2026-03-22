@@ -477,7 +477,6 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
                                         </div>
                                         <div className="flex-grow">
                                             <h3 className="text-xl font-black leading-tight">{title || 'Имя преподавателя'}</h3>
-                                            <p className="text-[10px] font-black text-primary uppercase tracking-widest mt-1">Общее отделение</p>
                                         </div>
                                     </div>
                                     <div className="space-y-2">

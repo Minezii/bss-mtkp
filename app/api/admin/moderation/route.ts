@@ -72,7 +72,6 @@ export async function POST(request: Request) {
                     data: {
                         name: finalData.title,
                         imageUrl: finalData.imageUrl,
-                        department: updatedData?.department || 'Общее',
                         subjects: finalData.content || '',
                     },
                 });
