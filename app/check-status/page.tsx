@@ -129,7 +129,6 @@ export default function CheckStatusPage() {
                             <h2 className="text-3xl font-black tracking-tight">Стань частью БСС</h2>
                             <p className="text-muted-foreground leading-relaxed text-lg">
                                 Создай аккаунт, чтобы автоматически отслеживать все свои будущие заявки без ввода кодов.
-                                А еще ты сможешь редактировать свои конспекты после публикации.
                             </p>
                         </div>
 
