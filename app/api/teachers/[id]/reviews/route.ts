@@ -36,30 +36,49 @@ export async function POST(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { content, rating, isRecommended } = await request.json();
+        const {
+            content,
+            lecturesRating,
+            examsRating,
+            clarityRating,
+            fairnessRating,
+            isRecommended
+        } = await request.json();
 
-        if (rating < 1 || rating > 5) {
-            return NextResponse.json({ error: 'Rating must be between 1 and 5' }, { status: 400 });
+        // Validate individual ratings
+        const ratings = [lecturesRating, examsRating, clarityRating, fairnessRating];
+        if (ratings.some(r => r < 1 || r > 5)) {
+            return NextResponse.json({ error: 'All ratings must be between 1 and 5' }, { status: 400 });
         }
+
+        // Calculate overall rating for this review (average of 4)
+        const avgRating = Math.round((lecturesRating + examsRating + clarityRating + fairnessRating) / 4);
+
+        const userId = user.id;
 
         // Upsert review
         await prisma.review.upsert({
             where: {
-                userId_teacherId: {
-                    userId: user.id,
-                    teacherId: teacherId
-                }
+                userId_teacherId: { userId, teacherId }
             },
             update: {
                 content,
-                rating,
+                rating: avgRating,
+                lecturesRating,
+                examsRating,
+                clarityRating,
+                fairnessRating,
                 isRecommended
             },
             create: {
-                userId: user.id,
-                teacherId: teacherId,
+                userId,
+                teacherId,
                 content,
-                rating,
+                rating: avgRating,
+                lecturesRating,
+                examsRating,
+                clarityRating,
+                fairnessRating,
                 isRecommended
             }
         });
@@ -68,18 +87,24 @@ export async function POST(
         const stats = await prisma.review.aggregate({
             where: { teacherId },
             _avg: {
-                rating: true
+                rating: true,
+                lecturesRating: true,
+                examsRating: true,
+                clarityRating: true,
+                fairnessRating: true
             },
-            _count: {
-                _all: true
-            }
+            _count: { _all: true }
         });
 
         await prisma.teacher.update({
             where: { id: teacherId },
             data: {
-                overallRating: stats._avg.rating || 0,
-                reviewsCount: stats._count._all || 0
+                overallRating: stats._avg?.rating || 0,
+                lecturesRating: stats._avg?.lecturesRating || 0,
+                examsRating: stats._avg?.examsRating || 0,
+                clarityRating: stats._avg?.clarityRating || 0,
+                fairnessRating: stats._avg?.fairnessRating || 0,
+                reviewsCount: stats._count?._all || 0
             }
         });
 

@@ -5,6 +5,7 @@ import { Search, Star, MessageSquare, Filter, User, RefreshCcw, ThumbsUp } from 
 import { useRouter } from 'next/navigation';
 import StarRating from '@/components/StarRating';
 import ReviewModal from '@/components/ReviewModal';
+import CommentsModal from '@/components/CommentsModal';
 import AuthModal from '@/components/AuthModal';
 
 const departments: string[] = ["Информатика", "Радиоаппаратостроение", "Социально-экономическое", "Общеобразовательное"];
@@ -34,6 +35,7 @@ export default function TeachersPage() {
     const [user, setUser] = useState<any>(null);
     const [selectedTeacher, setSelectedTeacher] = useState<any>(null);
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+    const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
     const fetchTeachers = async () => {
@@ -64,6 +66,11 @@ export default function TeachersPage() {
             setSelectedTeacher(teacher);
             setIsReviewModalOpen(true);
         }
+    };
+
+    const handleCommentsClick = (teacher: any) => {
+        setSelectedTeacher(teacher);
+        setIsCommentsModalOpen(true);
     };
 
     const filteredTeachers = teachers.filter((t: any) => {
@@ -163,10 +170,13 @@ export default function TeachersPage() {
                                         </div>
 
                                         <div className="flex items-center gap-2">
-                                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary rounded-xl text-muted-foreground text-sm font-bold">
+                                            <button
+                                                onClick={() => handleCommentsClick(teacher)}
+                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary rounded-xl text-muted-foreground text-sm font-bold hover:bg-secondary/80 transition-colors active:scale-95"
+                                            >
                                                 <MessageSquare size={16} />
                                                 {teacher.reviewsCount}
-                                            </div>
+                                            </button>
                                             <button
                                                 onClick={() => handleRateClick(teacher)}
                                                 className="bg-primary text-primary-foreground px-6 py-2.5 rounded-xl font-bold text-sm hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-primary/20"
@@ -197,13 +207,24 @@ export default function TeachersPage() {
             )}
 
             {selectedTeacher && (
-                <ReviewModal
-                    teacherId={selectedTeacher.id}
-                    teacherName={selectedTeacher.name}
-                    isOpen={isReviewModalOpen}
-                    onClose={() => setIsReviewModalOpen(false)}
-                    onSuccess={fetchTeachers}
-                />
+                <>
+                    <ReviewModal
+                        teacherId={selectedTeacher.id}
+                        teacherName={selectedTeacher.name}
+                        isOpen={isReviewModalOpen}
+                        onClose={() => {
+                            setIsReviewModalOpen(false);
+                            // setSelectedTeacher(null); // Keep it for a bit to avoid flicker if needed
+                        }}
+                        onSuccess={fetchTeachers}
+                    />
+                    <CommentsModal
+                        teacherId={selectedTeacher.id}
+                        teacherName={selectedTeacher.name}
+                        isOpen={isCommentsModalOpen}
+                        onClose={() => setIsCommentsModalOpen(false)}
+                    />
+                </>
             )}
 
             <AuthModal

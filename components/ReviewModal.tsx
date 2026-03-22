@@ -13,7 +13,12 @@ interface ReviewModalProps {
 }
 
 export default function ReviewModal({ teacherId, teacherName, isOpen, onClose, onSuccess }: ReviewModalProps) {
-    const [rating, setRating] = useState(5);
+    const [ratings, setRatings] = useState({
+        lectures: 0,
+        exams: 0,
+        clarity: 0,
+        fairness: 0
+    });
     const [content, setContent] = useState('');
     const [isRecommended, setIsRecommended] = useState(true);
     const [loading, setLoading] = useState(false);
@@ -23,6 +28,11 @@ export default function ReviewModal({ teacherId, teacherName, isOpen, onClose, o
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (Object.values(ratings).some(r => r === 0)) {
+            setError('Пожалуйста, оцените по всем критериям');
+            return;
+        }
+
         setLoading(true);
         setError('');
 
@@ -30,7 +40,14 @@ export default function ReviewModal({ teacherId, teacherName, isOpen, onClose, o
             const res = await fetch(`/api/teachers/${teacherId}/reviews`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ rating, content, isRecommended })
+                body: JSON.stringify({
+                    content,
+                    lecturesRating: ratings.lectures,
+                    examsRating: ratings.exams,
+                    clarityRating: ratings.clarity,
+                    fairnessRating: ratings.fairness,
+                    isRecommended
+                })
             });
 
             if (res.ok) {
@@ -47,9 +64,16 @@ export default function ReviewModal({ teacherId, teacherName, isOpen, onClose, o
         }
     };
 
+    const RatingField = ({ label, value, onChange }: { label: string, value: number, onChange: (v: number) => void }) => (
+        <div className="flex flex-col gap-2">
+            <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider">{label}</span>
+            <StarRating rating={value} onRatingChange={onChange} interactive={true} size={24} />
+        </div>
+    );
+
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="relative w-full max-w-lg bg-card border border-border rounded-3xl p-8 shadow-2xl animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="relative w-full max-w-xl bg-card border border-border rounded-3xl p-8 shadow-2xl animate-in zoom-in-95 duration-200">
                 <button
                     onClick={onClose}
                     className="absolute top-4 right-4 p-2 hover:bg-secondary rounded-full transition-colors"
@@ -57,17 +81,30 @@ export default function ReviewModal({ teacherId, teacherName, isOpen, onClose, o
                     <X size={20} />
                 </button>
 
-                <h2 className="text-2xl font-bold mb-2">Ваш отзыв</h2>
-                <p className="text-muted-foreground mb-6 font-medium">Преподаватель: <span className="text-foreground">{teacherName}</span></p>
+                <h2 className="text-2xl font-bold mb-2">Оставить отзыв</h2>
+                <p className="text-muted-foreground mb-8">Преподаватель: <span className="text-foreground font-bold">{teacherName}</span></p>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="space-y-3">
-                        <label className="text-sm font-bold">Оценка в звездах</label>
-                        <StarRating
-                            rating={rating}
-                            interactive
-                            size={32}
-                            onRatingChange={setRating}
+                <form onSubmit={handleSubmit} className="space-y-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <RatingField
+                            label="Душка на парах"
+                            value={ratings.lectures}
+                            onChange={(v) => setRatings({ ...ratings, lectures: v })}
+                        />
+                        <RatingField
+                            label="Душка на сессии"
+                            value={ratings.exams}
+                            onChange={(v) => setRatings({ ...ratings, exams: v })}
+                        />
+                        <RatingField
+                            label="Понятность"
+                            value={ratings.clarity}
+                            onChange={(v) => setRatings({ ...ratings, clarity: v })}
+                        />
+                        <RatingField
+                            label="Справедливость"
+                            value={ratings.fairness}
+                            onChange={(v) => setRatings({ ...ratings, fairness: v })}
                         />
                     </div>
 
@@ -78,8 +115,8 @@ export default function ReviewModal({ teacherId, teacherName, isOpen, onClose, o
                                 type="button"
                                 onClick={() => setIsRecommended(true)}
                                 className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl font-bold transition-all border-2 ${isRecommended
-                                        ? 'bg-green-500/10 border-green-500 text-green-500'
-                                        : 'bg-secondary border-transparent text-muted-foreground'
+                                    ? 'bg-green-500/10 border-green-500 text-green-500'
+                                    : 'bg-secondary border-transparent text-muted-foreground'
                                     }`}
                             >
                                 <ThumbsUp size={20} /> Да
@@ -88,8 +125,8 @@ export default function ReviewModal({ teacherId, teacherName, isOpen, onClose, o
                                 type="button"
                                 onClick={() => setIsRecommended(false)}
                                 className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl font-bold transition-all border-2 ${!isRecommended
-                                        ? 'bg-red-500/10 border-red-500 text-red-500'
-                                        : 'bg-secondary border-transparent text-muted-foreground'
+                                    ? 'bg-red-500/10 border-red-500 text-red-500'
+                                    : 'bg-secondary border-transparent text-muted-foreground'
                                     }`}
                             >
                                 <ThumbsDown size={20} /> Нет

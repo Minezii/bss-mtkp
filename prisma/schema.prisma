@@ -59,17 +59,21 @@ model User {
 }
 
 model Review {
-  id            Int      @id @default(autoincrement())
-  userId        Int
-  teacherId     Int
-  content       String?
-  rating        Int      @default(0) // 1-5 stars
-  isRecommended Boolean  @default(true) // like or dislike
-  user          User     @relation(fields: [userId], references: [id])
-  teacher       Teacher  @relation(fields: [teacherId], references: [id])
-  createdAt     DateTime @default(now())
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  teacherId      Int
+  content        String?
+  rating         Int      @default(0) // Overall average of 1-5
+  lecturesRating Int      @default(0)
+  examsRating    Int      @default(0)
+  clarityRating  Int      @default(0)
+  fairnessRating Int      @default(0)
+  isRecommended  Boolean  @default(true)
+  user           User     @relation(fields: [userId], references: [id])
+  teacher        Teacher  @relation(fields: [teacherId], references: [id])
+  createdAt      DateTime @default(now())
 
-  @@unique([userId, teacherId]) // Only one review per teacher per user
+  @@unique([userId, teacherId])
 }
 
 model Tool {
