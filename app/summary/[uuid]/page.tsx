@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ChevronLeft, Share2, BookOpen, Clock, AlertCircle, RefreshCcw, ListChecks, Sparkles } from 'lucide-react';
+import { ChevronLeft, Share2, BookOpen, Clock, AlertCircle, RefreshCcw, ListChecks, Sparkles, Zap } from 'lucide-react';
 import SummaryRenderer from '@/components/SummaryRenderer';
 
 export default function SummaryPage() {
@@ -154,10 +154,9 @@ export default function SummaryPage() {
                             <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Конец конспекта</p>
 
                             <div className="flex flex-col items-center gap-2">
-                                <span className="text-xs text-muted-foreground font-medium uppercase tracking-tighter">Материал подготовлен</span>
-                                <div className="px-4 py-2 bg-primary/10 rounded-xl border border-primary/20 flex items-center gap-2">
-                                    <Sparkles size={16} className="text-primary" />
-                                    <span className="font-black italic text-primary">IRMIS AI</span>
+                                <div className="px-6 py-2.5 bg-[#5865F2]/10 rounded-full border border-[#5865F2]/20 flex items-center gap-3 shadow-lg shadow-[#5865F2]/5 group hover:scale-105 transition-transform cursor-default">
+                                    <Zap size={18} className="text-[#5865F2] fill-[#5865F2]/20" />
+                                    <span className="font-black text-[#5865F2] tracking-[0.15em] text-sm uppercase">POWERED BY ИРМИС</span>
                                 </div>
                             </div>
 
