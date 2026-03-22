@@ -174,7 +174,7 @@ export default function SubmitPage() {
                                 {selectedFile ? selectedFile.name : 'Выбери файл'}
                             </p>
                             <p className="text-xs text-muted-foreground mt-1 underline">
-                                {selectedFile ? `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB` : 'PDF, DOCX, PNG до 20MB'}
+                                {selectedFile ? `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB` : 'PDF, DOCX, PNG до 4.5MB'}
                             </p>
                             {selectedFile && (
                                 <button
