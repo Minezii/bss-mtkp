@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, Users, Wrench, Menu, X, Rocket, Moon, Sun, User, LogOut, GraduationCap } from 'lucide-react';
+import { BookOpen, Users, Wrench, Menu, X, Rocket, Moon, Sun, User, LogOut, GraduationCap, HelpCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import AuthModal from './AuthModal';
@@ -12,6 +12,7 @@ const navItems = [
     { name: 'Ирмис', href: '/summaries', icon: BookOpen },
     { name: 'Преподаватели', href: '/teachers', icon: Users },
     { name: 'Инструменты', href: '/tools', icon: Wrench },
+    { name: 'Вопросы', href: '/faq', icon: HelpCircle },
     { name: 'Статус', href: '/check-status', icon: Rocket },
 ];
 
