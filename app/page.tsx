@@ -96,7 +96,7 @@ export default function Home() {
             </a>
             <button
               onClick={() => router.push('/summaries')}
-              className="w-full sm:w-auto bg-primary-foreground/10 border-2 border-primary-foreground/20 text-primary-foreground px-8 py-4 rounded-2xl font-bold hover:bg-primary-foreground/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto bg-primary-foreground/10 text-primary-foreground px-8 py-4 rounded-2xl font-bold hover:bg-primary-foreground/20 transition-all active:scale-95 flex items-center justify-center gap-2"
             >
               <BookOpen size={20} />
               Открыть конспект
