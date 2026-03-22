@@ -16,6 +16,7 @@ export async function GET(
                 title: true,
                 type: true,
                 status: true,
+                resultId: true,
                 createdAt: true,
             }
         });

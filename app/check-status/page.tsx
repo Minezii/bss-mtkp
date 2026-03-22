@@ -11,6 +11,7 @@ interface SubmissionStatus {
     title: string;
     type: string;
     status: 'pending' | 'approved' | 'rejected' | 'draft';
+    resultId?: number;
     createdAt: string;
 }
 
@@ -196,8 +197,21 @@ export default function CheckStatusPage() {
                                         })()}
                                     </div>
                                 </div>
-                                <div className="p-3 bg-secondary rounded-xl text-primary">
-                                    {manualStatus.type === 'material' ? <FileText size={20} /> : manualStatus.type === 'teacher' ? <User size={20} /> : <Wrench size={20} />}
+                                <div className="flex items-center gap-3">
+                                    <div className="p-3 bg-secondary rounded-xl text-primary">
+                                        {manualStatus.type === 'material' ? <FileText size={20} /> : manualStatus.type === 'teacher' ? <User size={20} /> : <Wrench size={20} />}
+                                    </div>
+                                    {manualStatus.status === 'approved' && (
+                                        <Link
+                                            href={
+                                                manualStatus.type === 'material' ? `/material/${manualStatus.resultId}` :
+                                                    manualStatus.type === 'teacher' ? `/teachers` : `/tools`
+                                            }
+                                            className="p-2 bg-primary text-primary-foreground rounded-lg hover:scale-105 transition-transform"
+                                        >
+                                            <ChevronRight size={18} />
+                                        </Link>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -253,9 +267,17 @@ export default function CheckStatusPage() {
                                                     <StatusIcon size={14} />
                                                     {info.label}
                                                 </div>
-                                                <button className="p-2.5 bg-secondary rounded-xl hover:bg-primary hover:text-white transition-all">
-                                                    <ChevronRight size={20} />
-                                                </button>
+                                                {sub.status === 'approved' && (
+                                                    <Link
+                                                        href={
+                                                            sub.type === 'material' ? `/material/${sub.resultId}` :
+                                                                sub.type === 'teacher' ? `/teachers` : `/tools`
+                                                        }
+                                                        className="p-2.5 bg-secondary rounded-xl hover:bg-primary hover:text-white transition-all"
+                                                    >
+                                                        <ChevronRight size={20} />
+                                                    </Link>
+                                                )}
                                             </div>
                                         </div>
                                     );

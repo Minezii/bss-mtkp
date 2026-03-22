@@ -45,6 +45,8 @@ export async function POST(request: Request) {
         }
 
         if (action === 'approve') {
+            let createdId: number | undefined;
+
             if (submission.type === 'material') {
                 // Auto-calculate course if not explicitly provided
                 let course = finalData.course;
@@ -56,7 +58,7 @@ export async function POST(request: Request) {
                     }
                 }
 
-                await prisma.material.create({
+                const material = await prisma.material.create({
                     data: {
                         title: finalData.title,
                         group: finalData.group,
@@ -67,17 +69,19 @@ export async function POST(request: Request) {
                         content: finalData.content, // Copy markdown content
                     },
                 });
+                createdId = material.id;
             } else if (submission.type === 'teacher') {
-                await prisma.teacher.create({
+                const teacher = await prisma.teacher.create({
                     data: {
                         name: finalData.title,
                         imageUrl: finalData.imageUrl,
                         subjects: finalData.content || '',
                     },
                 });
+                createdId = teacher.id;
             }
             else if (submission.type === 'tool') {
-                await prisma.tool.create({
+                const tool = await prisma.tool.create({
                     data: {
                         name: finalData.title,
                         desc: finalData.content || '',
@@ -85,11 +89,15 @@ export async function POST(request: Request) {
                         url: finalData.fileUrl,
                     },
                 });
+                createdId = tool.id;
             }
 
             await prisma.submission.update({
                 where: { id },
-                data: { status: 'approved' },
+                data: {
+                    status: 'approved',
+                    resultId: createdId
+                },
             });
         } else if (action === 'reject') {
             await prisma.submission.update({

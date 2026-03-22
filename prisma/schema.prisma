@@ -20,6 +20,7 @@ model Submission {
   imageUrl  String?  // Photo for teachers or rich content
   userId    Int?
   user      User?    @relation(fields: [userId], references: [id])
+  resultId  Int?     // ID of the created Material, Teacher or Tool
   status    String   @default("pending") // pending, approved, rejected, draft
   createdAt DateTime @default(now())
 }
