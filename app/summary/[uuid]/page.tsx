@@ -16,12 +16,27 @@ export default function SummaryPage() {
     const [error, setError] = useState<string | null>(null);
     const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
     const [isPublished, setIsPublished] = useState(false);
+    const [justPublished, setJustPublished] = useState(false);
 
     useEffect(() => {
         if (uuid) {
             fetchSummary();
+            checkPublicationStatus();
         }
     }, [uuid]);
+
+    const checkPublicationStatus = async () => {
+        try {
+            const res = await fetch('/api/summaries/sync');
+            if (res.ok) {
+                const data = await res.json();
+                const exists = data.some((s: any) => s.uuid === uuid);
+                if (exists) setIsPublished(true);
+            }
+        } catch (err) {
+            console.error('Error checking publication status:', err);
+        }
+    };
 
     const fetchSummary = async () => {
         setLoading(true);
@@ -70,19 +85,16 @@ export default function SummaryPage() {
 
                     <div className="flex items-center gap-2">
                         <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => setIsPublishModalOpen(true)}
-                                disabled={isPublished || loading || !summary}
-                                className={`p-3 rounded-2xl border-2 transition-all flex items-center gap-2 font-bold text-sm ${isPublished
-                                    ? 'bg-green-500/10 border-green-500/20 text-green-500'
-                                    : 'bg-primary border-primary text-primary-foreground hover:scale-105 active:scale-95 shadow-lg shadow-primary/20'
-                                    }`}
-                            >
-                                <Globe size={20} />
-                                <span className="hidden md:inline">
-                                    {isPublished ? 'Опубликовано' : 'На сайт для всех'}
-                                </span>
-                            </button>
+                            {!isPublished && (
+                                <button
+                                    onClick={() => setIsPublishModalOpen(true)}
+                                    disabled={loading || !summary}
+                                    className="p-3 rounded-2xl border-2 border-primary bg-primary text-primary-foreground transition-all flex items-center gap-2 font-bold text-sm hover:scale-105 active:scale-95 shadow-lg shadow-primary/20"
+                                >
+                                    <Globe size={20} />
+                                    <span className="hidden md:inline">На сайт для всех</span>
+                                </button>
+                            )}
 
                             <button
                                 onClick={handleShare}
@@ -94,7 +106,7 @@ export default function SummaryPage() {
                         </div>
                     </div>
                 </div>
-                {isPublished && (
+                {justPublished && (
                     <div className="max-w-4xl mx-auto px-4 mb-8 p-4 bg-green-500/10 border border-green-500/20 rounded-3xl text-green-500 animate-in slide-in-from-top-4 duration-500 flex items-center justify-center gap-3 font-bold">
                         <Check size={20} />
                         Конспект теперь доступен всем на главной странице!
@@ -199,7 +211,10 @@ export default function SummaryPage() {
             <PublishSummaryModal
                 isOpen={isPublishModalOpen}
                 onClose={() => setIsPublishModalOpen(false)}
-                onSuccess={() => setIsPublished(true)}
+                onSuccess={() => {
+                    setIsPublished(true);
+                    setJustPublished(true);
+                }}
                 summaryData={{
                     uuid: uuid as string,
                     title: summary?.name || 'AI Конспект'
