@@ -9,7 +9,7 @@ import AuthModal from './AuthModal';
 
 const navItems = [
     { name: 'Материалы', href: '/', icon: GraduationCap },
-    { name: 'Конспекты', href: '/summaries', icon: BookOpen },
+    { name: 'Ирмис', href: '/summaries', icon: BookOpen },
     { name: 'Преподаватели', href: '/teachers', icon: Users },
     { name: 'Инструменты', href: '/tools', icon: Wrench },
     { name: 'Статус', href: '/check-status', icon: Rocket },

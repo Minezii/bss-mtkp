@@ -27,7 +27,7 @@ export default function SummariesEntryPage() {
             <div className="max-w-2xl w-full text-center space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full font-bold text-sm uppercase tracking-widest mb-4">
                     <Sparkles size={16} />
-                    AI Конспекты
+                    Ирмис Конспекты
                 </div>
 
                 <h1 className="text-4xl md:text-6xl font-black tracking-tight leading-tight">
@@ -55,7 +55,7 @@ export default function SummariesEntryPage() {
                             type="submit"
                             className="bg-primary text-primary-foreground px-8 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:scale-105 transition-all active:scale-95 shadow-lg shadow-primary/20"
                         >
-                            Открыть
+                            Открыть конспект из Ирмис
                             <ArrowRight size={20} />
                         </button>
                     </div>

@@ -99,7 +99,7 @@ export default function Home() {
               className="w-full sm:w-auto bg-primary-foreground/10 text-primary-foreground px-8 py-4 rounded-2xl font-bold hover:bg-primary-foreground/20 transition-all active:scale-95 flex items-center justify-center gap-2"
             >
               <BookOpen size={20} />
-              Открыть конспект
+              Открыть конспект из Ирмис
             </button>
           </div>
         </div>
