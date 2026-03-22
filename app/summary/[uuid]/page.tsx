@@ -24,7 +24,7 @@ export default function SummaryPage() {
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch(`https://d5d3kh6vigfafsdv1ukv.4b4k4pk9g5.apigw.yandexcloud.net/summaries/${uuid}`);
+            const res = await fetch(`https://d5d3kh6vigfafsdv1ukv.4b4k4pg5.apigw.yandexcloud.net/summaries/${uuid}`);
             if (res.ok) {
                 const data = await res.json();
                 setSummary(data);
