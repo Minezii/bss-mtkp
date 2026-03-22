@@ -10,6 +10,7 @@ interface Material {
   subject: string;
   category: string;
   fileUrl: string;
+  content?: string;
   downloads: number;
   course: number;
 }
@@ -164,7 +165,18 @@ export default function Home() {
                 key={item.id}
                 onClick={() => {
                   if (item.fileUrl) {
-                    window.open(item.fileUrl, '_blank');
+                    if (item.fileUrl.includes('/summary/')) {
+                      const uuid = item.fileUrl.split('/summary/')[1]?.split('?')[0];
+                      if (uuid) {
+                        router.push(`/summary/${uuid}`);
+                      } else {
+                        window.open(item.fileUrl, '_blank');
+                      }
+                    } else {
+                      window.open(item.fileUrl, '_blank');
+                    }
+                  } else if (item.content) {
+                    router.push(`/material/${item.id}`);
                   } else {
                     alert('Файл еще не загружен или ссылка отсутствует.');
                   }

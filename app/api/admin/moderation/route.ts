@@ -64,6 +64,7 @@ export async function POST(request: Request) {
                         category: finalData.category,
                         subject: finalData.subject || 'Неизвестно',
                         fileUrl: finalData.fileUrl,
+                        content: finalData.content, // Copy markdown content
                     },
                 });
             } else if (submission.type === 'teacher') {
