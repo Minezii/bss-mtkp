@@ -2,16 +2,17 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, Users, Wrench, Menu, X, Rocket, Moon, Sun, User, LogOut } from 'lucide-react';
+import { BookOpen, Users, Wrench, Menu, X, Rocket, Moon, Sun, User, LogOut, GraduationCap } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import AuthModal from './AuthModal';
 
 const navItems = [
-    { name: 'Студентам', href: '/', icon: BookOpen },
+    { name: 'Материалы', href: '/', icon: GraduationCap },
+    { name: 'Конспекты', href: '/summaries', icon: BookOpen },
     { name: 'Преподаватели', href: '/teachers', icon: Users },
     { name: 'Инструменты', href: '/tools', icon: Wrench },
-    { name: 'Статус заявки', href: '/check-status', icon: Rocket },
+    { name: 'Статус', href: '/check-status', icon: Rocket },
 ];
 
 export default function Navbar() {
