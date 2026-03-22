@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ChevronLeft, Share2, BookOpen, Clock, AlertCircle, RefreshCcw, ListChecks, Sparkles, Zap } from 'lucide-react';
+import { ChevronLeft, Share2, BookOpen, Clock, AlertCircle, RefreshCcw, ListChecks, Sparkles, Zap, Globe } from 'lucide-react';
 import SummaryRenderer from '@/components/SummaryRenderer';
+import PublishSummaryModal from '@/components/PublishSummaryModal';
 
 export default function SummaryPage() {
     const params = useParams();
@@ -13,6 +14,8 @@ export default function SummaryPage() {
     const [summary, setSummary] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
+    const [isPublished, setIsPublished] = useState(false);
 
     useEffect(() => {
         if (uuid) {
@@ -66,15 +69,37 @@ export default function SummaryPage() {
                     </button>
 
                     <div className="flex items-center gap-2">
-                        <button
-                            onClick={handleShare}
-                            className="p-2 hover:bg-secondary rounded-full transition-colors"
-                            title="Поделиться"
-                        >
-                            <Share2 size={20} />
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setIsPublishModalOpen(true)}
+                                disabled={isPublished}
+                                className={`p-3 rounded-2xl border-2 transition-all flex items-center gap-2 font-bold text-sm ${isPublished
+                                        ? 'bg-green-500/10 border-green-500/20 text-green-500'
+                                        : 'bg-primary border-primary text-primary-foreground hover:scale-105 active:scale-95 shadow-lg shadow-primary/20'
+                                    }`}
+                            >
+                                <Globe size={20} />
+                                <span className="hidden md:inline">
+                                    {isPublished ? 'Опубликовано' : 'На сайт для всех'}
+                                </span>
+                            </button>
+
+                            <button
+                                onClick={handleShare}
+                                className="p-3 bg-secondary rounded-2xl border-2 border-transparent hover:border-primary/20 transition-all text-secondary-foreground"
+                                title="Поделиться"
+                            >
+                                <Share2 size={24} />
+                            </button>
+                        </div>
                     </div>
                 </div>
+                {isPublished && (
+                    <div className="max-w-4xl mx-auto px-4 mb-8 p-4 bg-green-500/10 border border-green-500/20 rounded-3xl text-green-500 animate-in slide-in-from-top-4 duration-500 flex items-center justify-center gap-3 font-bold">
+                        <Check size={20} />
+                        Конспект теперь доступен всем на главной странице!
+                    </div>
+                )}
             </header>
 
             <main className="max-w-4xl mx-auto px-4 pt-12">
@@ -170,6 +195,22 @@ export default function SummaryPage() {
                     </div>
                 ) : null}
             </main>
+
+            <PublishSummaryModal
+                isOpen={isPublishModalOpen}
+                onClose={() => setIsPublishModalOpen(false)}
+                onSuccess={() => setIsPublished(true)}
+                summaryData={{
+                    uuid: uuid as string,
+                    title: summary.name || 'AI Конспект'
+                }}
+            />
         </div>
+    );
+}
+
+function Check({ size }: { size: number }) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
     );
 }
