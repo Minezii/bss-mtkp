@@ -66,14 +66,24 @@ model Review {
   rating         Int      @default(0) // Overall average of 1-5
   lecturesRating Int      @default(0)
   examsRating    Int      @default(0)
-  clarityRating  Int      @default(0)
-  fairnessRating Int      @default(0)
+  clarityRating  Float    @default(0)
+  fairnessRating Float    @default(0)
   isRecommended  Boolean  @default(true)
   user           User     @relation(fields: [userId], references: [id])
   teacher        Teacher  @relation(fields: [teacherId], references: [id])
   createdAt      DateTime @default(now())
 
   @@unique([userId, teacherId])
+}
+
+model AISummary {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique
+  title     String
+  subject   String?
+  course    Int?     @default(1)
+  category  String   @default("AI Конспект")
+  createdAt DateTime @default(now())
 }
 
 model Tool {

@@ -8,7 +8,10 @@ import {
   Download,
   RefreshCcw,
   GraduationCap,
-  Send
+  Send,
+  Clock,
+  Sparkles,
+  BookOpen
 } from 'lucide-react';
 
 interface Material {
@@ -26,17 +29,26 @@ const courses = [1, 2, 3, 4];
 export default function Home() {
   const router = useRouter();
   const [materials, setMaterials] = useState<Material[]>([]);
+  const [aiSummaries, setAiSummaries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCourse, setSelectedCourse] = useState<number | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const fetchMaterials = async () => {
+  const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/materials?course=${selectedCourse}`);
-      if (res.ok) {
-        const data = await res.json();
+      const [materialsRes, summariesRes] = await Promise.all([
+        fetch(`/api/materials?course=${selectedCourse}`),
+        fetch('/api/summaries/sync')
+      ]);
+
+      if (materialsRes.ok) {
+        const data = await materialsRes.json();
         setMaterials(data);
+      }
+      if (summariesRes.ok) {
+        const data = await summariesRes.json();
+        setAiSummaries(data);
       }
     } catch (err) {
       console.error(err);
@@ -46,13 +58,21 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetchMaterials();
+    fetchData();
   }, [selectedCourse]);
 
   const filteredMaterials = materials.filter((m) => {
     return (
       m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       m.subject.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
+
+  const filteredSummaries = aiSummaries.filter((s) => {
+    if (selectedCourse !== 'all' && s.course !== selectedCourse) return false;
+    return (
+      s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (s.subject && s.subject.toLowerCase().includes(searchQuery.toLowerCase()))
     );
   });
 
@@ -88,7 +108,7 @@ export default function Home() {
               onClick={() => router.push('/summaries')}
               className="w-full sm:w-auto bg-primary-foreground/10 border-2 border-primary-foreground/20 text-primary-foreground px-8 py-4 rounded-2xl font-bold hover:bg-primary-foreground/20 transition-all active:scale-95 flex items-center justify-center gap-2"
             >
-              <FileText size={20} />
+              <BookOpen size={20} />
               Открыть конспект
             </button>
           </div>
@@ -140,7 +160,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Materials Grid */}
+        {/* Unified Grid */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 animate-pulse text-muted-foreground group">
             <RefreshCcw size={48} className="animate-spin mb-4" />
@@ -148,6 +168,7 @@ export default function Home() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Regular Materials */}
             {filteredMaterials.map((item) => (
               <div
                 key={item.id}
@@ -185,10 +206,46 @@ export default function Home() {
                 </div>
               </div>
             ))}
+
+            {/* AI Summaries */}
+            {filteredSummaries.map((s) => (
+              <div
+                key={s.id}
+                onClick={() => router.push(`/summary/${s.uuid}`)}
+                className="group bg-primary/5 border border-primary/10 rounded-2xl p-6 hover:shadow-xl hover:border-primary/30 transition-all cursor-pointer relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 p-1 bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-tighter transform rotate-45 translate-x-[40%] translate-y-[20%] w-24 text-center">
+                  AI Spark
+                </div>
+                <div className="flex justify-between items-start mb-4">
+                  <div className="p-3 bg-primary text-primary-foreground rounded-xl shadow-lg shadow-primary/20">
+                    <Sparkles size={24} />
+                  </div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-1 rounded">
+                    Конспект ИИ
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold mb-2 line-clamp-2 group-hover:text-primary transition-colors pr-4">
+                  {s.title}
+                </h3>
+                <p className="text-muted-foreground text-sm mb-6">
+                  Предмет: <span className="text-foreground font-medium">{s.subject || 'Общий'}</span>
+                </p>
+                <div className="flex justify-between items-center pt-4 border-t border-primary/10">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground">
+                    <Clock size={14} />
+                    {new Date(s.createdAt).toLocaleDateString()}
+                  </div>
+                  <span className="text-xs font-bold px-2 py-1 bg-primary/10 text-primary rounded-md">
+                    {s.course} курс
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
-        {!loading && filteredMaterials.length === 0 && (
+        {!loading && filteredMaterials.length === 0 && filteredSummaries.length === 0 && (
           <div className="text-center py-24 bg-secondary/50 rounded-3xl border-2 border-dashed border-border">
             <p className="text-muted-foreground text-lg">По вашему запросу ничего не найдено.</p>
           </div>

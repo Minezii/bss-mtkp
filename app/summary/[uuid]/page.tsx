@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ChevronLeft, Share2, BookOpen, Clock, AlertCircle, RefreshCcw } from 'lucide-react';
+import { ChevronLeft, Share2, BookOpen, Clock, AlertCircle, RefreshCcw, ListChecks, Sparkles } from 'lucide-react';
 import SummaryRenderer from '@/components/SummaryRenderer';
 
 export default function SummaryPage() {
@@ -108,16 +108,46 @@ export default function SummaryPage() {
                                 <BookOpen size={14} />
                                 Автоматический конспект
                             </span>
+                            <span className="flex items-center gap-1.5 py-1.5 px-3 bg-secondary rounded-full text-primary">
+                                <Sparkles size={14} />
+                                AI Generated
+                            </span>
                             <span className="flex items-center gap-1.5 py-1.5 px-3 bg-secondary rounded-full">
                                 <Clock size={14} />
-                                {new Date(summary.time || Date.now()).toLocaleDateString('ru-RU')}
+                                {new Date(summary.message?.time || Date.now()).toLocaleDateString('ru-RU')}
                             </span>
                         </div>
 
-                        {/* Title if not in blocks (some Editor.js outputs keep title separate) */}
-                        {/* But we'll rely on SummaryRenderer h1 blocks first */}
+                        {/* Title from root JSON */}
+                        {summary.name && (
+                            <h1 className="text-4xl md:text-5xl font-black mb-12 tracking-tight leading-tight">
+                                {summary.name}
+                            </h1>
+                        )}
 
-                        <SummaryRenderer blocks={summary.blocks} />
+                        {/* Tasks Section */}
+                        {summary.tasks && summary.tasks.length > 0 && (
+                            <div className="mb-12 p-8 bg-primary/5 border border-primary/10 rounded-3xl space-y-6">
+                                <h2 className="text-xl font-bold flex items-center gap-2">
+                                    <ListChecks size={24} className="text-primary" />
+                                    Задачи конспекта
+                                </h2>
+                                <div className="space-y-4">
+                                    {summary.tasks.map((task: any) => (
+                                        <div key={task.id} className="flex items-start gap-3 bg-background/50 p-4 rounded-2xl border border-border/50">
+                                            <div className="mt-1 flex-shrink-0 w-5 h-5 rounded-full border-2 border-primary/30 flex items-center justify-center">
+                                                <div className="w-2 h-2 bg-primary rounded-full" />
+                                            </div>
+                                            <p className="text-sm md:text-base font-medium leading-relaxed">
+                                                {task.description}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <SummaryRenderer blocks={summary.message?.blocks || []} />
 
                         {/* Footer / Outro */}
                         <div className="mt-20 pt-10 border-t border-border text-center">
