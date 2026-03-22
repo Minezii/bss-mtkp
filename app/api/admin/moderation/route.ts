@@ -23,6 +23,7 @@ export async function POST(request: Request) {
             group: updatedData?.group || submission.group,
             type: updatedData?.type || submission.type,
             fileUrl: updatedData?.fileUrl || submission.fileUrl,
+            imageUrl: updatedData?.imageUrl || submission.imageUrl,
             category: updatedData?.category || 'Разное',
             course: updatedData?.course || 1,
         };
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
                     title: finalData.title,
                     content: finalData.content,
                     group: finalData.group,
+                    imageUrl: finalData.imageUrl,
                     status: 'draft'
                 }
             });
@@ -66,11 +68,13 @@ export async function POST(request: Request) {
                 await prisma.teacher.create({
                     data: {
                         name: finalData.title,
+                        imageUrl: finalData.imageUrl,
                         department: updatedData?.department || 'Общее',
                         subjects: finalData.content || '',
                     },
                 });
-            } else if (submission.type === 'tool') {
+            }
+            else if (submission.type === 'tool') {
                 await prisma.tool.create({
                     data: {
                         name: finalData.title,

@@ -4,190 +4,14 @@ import { useState, useEffect } from 'react';
 import { LogOut, Check, X, Clock, FileText, UserPlus, Wrench, RefreshCcw, Edit3, Save, Eye, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-const EditorModal = ({ submission, onClose, onSave, onApprove }: any) => {
-    const [title, setTitle] = useState(submission.title || '');
-    const [content, setContent] = useState(submission.content || '');
-    const [group, setGroup] = useState(submission.group || '');
-    const [category, setCategory] = useState(submission.category || 'Конспект');
-    const [course, setCourse] = useState(1);
-    const [isSaving, setIsSaving] = useState(false);
-
-    useEffect(() => {
-        if (group) {
-            const match = group.match(/\d/);
-            if (match) {
-                const semester = parseInt(match[0]);
-                setCourse(Math.ceil(semester / 2));
-            }
-        }
-    }, [group]);
-
-    return (
-        <div className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-300">
-            <div className="bg-card border border-border w-full max-w-6xl max-h-[90vh] rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden">
-                <header className="p-6 md:p-8 border-b border-border flex justify-between items-center bg-secondary/20">
-                    <div className="flex items-center gap-4">
-                        <div className="p-3 bg-primary/10 text-primary rounded-2xl">
-                            <Edit3 size={24} />
-                        </div>
-                        <div>
-                            <h2 className="text-2xl font-black">Редактирование заявки</h2>
-                            <p className="text-muted-foreground text-sm font-medium italic">Проверь, поправь и выкладывай</p>
-                        </div>
-                    </div>
-                    <button onClick={onClose} className="p-3 hover:bg-muted rounded-full transition-colors active:scale-90">
-                        <X size={24} />
-                    </button>
-                </header>
-
-                <div className="flex-grow overflow-y-auto p-6 md:p-10 scrollbar-thin">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                        {/* Editor Forms */}
-                        <div className="space-y-8">
-                            <div className="space-y-4">
-                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Основная информация</label>
-                                <div className="space-y-5">
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-bold ml-1">Заголовок / Имя</label>
-                                        <input
-                                            value={title}
-                                            onChange={(e) => setTitle(e.target.value)}
-                                            className="w-full bg-secondary border-none rounded-2xl py-4 px-5 focus:ring-2 focus:ring-primary outline-none transition-all"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-bold ml-1">Описание / Текст / Предметы</label>
-                                        <textarea
-                                            value={content}
-                                            onChange={(e) => setContent(e.target.value)}
-                                            rows={5}
-                                            className="w-full bg-secondary border-none rounded-2xl py-4 px-5 focus:ring-2 focus:ring-primary outline-none transition-all resize-none"
-                                        />
-                                    </div>
-                                    {submission.type === 'material' && (
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <label className="text-sm font-bold ml-1">Группа</label>
-                                                <input
-                                                    value={group}
-                                                    onChange={(e) => setGroup(e.target.value)}
-                                                    placeholder="ТИП 11"
-                                                    className="w-full bg-secondary border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary outline-none"
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-sm font-bold ml-1">Категория</label>
-                                                <select
-                                                    value={category}
-                                                    onChange={(e) => setCategory(e.target.value)}
-                                                    className="w-full bg-secondary border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary outline-none font-bold"
-                                                >
-                                                    <option>Конспект</option>
-                                                    <option>Лекция</option>
-                                                    <option>Шпаргалка</option>
-                                                    <option>Разное</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Live Preview */}
-                        <div className="space-y-6">
-                            <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1 flex items-center gap-2">
-                                <Eye size={12} /> Предпросмотр карточки
-                            </label>
-
-                            <div className="p-8 bg-secondary/10 rounded-[2rem] border border-dashed border-border flex items-center justify-center min-h-[300px]">
-                                {submission.type === 'material' && (
-                                    <div className="w-full max-w-sm bg-card border border-border rounded-2xl p-6 shadow-xl">
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div className="p-3 bg-primary text-primary-foreground rounded-xl">
-                                                <FileText size={24} />
-                                            </div>
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground bg-secondary px-2 py-1 rounded">
-                                                {category}
-                                            </span>
-                                        </div>
-                                        <h3 className="text-xl font-bold mb-2 line-clamp-2">{title || 'Без названия'}</h3>
-                                        <p className="text-muted-foreground text-sm mb-6">
-                                            Предмет: <span className="text-foreground font-medium">{content || '...'}</span>
-                                        </p>
-                                        <div className="flex justify-between items-center pt-4 border-t border-border">
-                                            <span className="text-xs font-black px-2 py-1 bg-primary/10 text-primary rounded-md">
-                                                {course} курс
-                                            </span>
-                                            {group && <span className="text-[10px] font-black text-muted-foreground italic">{group}</span>}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {submission.type === 'teacher' && (
-                                    <div className="w-full max-w-sm bg-card border border-border rounded-3xl p-6 shadow-xl">
-                                        <div className="flex gap-4">
-                                            <div className="w-16 h-16 bg-secondary rounded-xl flex items-center justify-center text-muted-foreground">
-                                                <UserPlus size={32} />
-                                            </div>
-                                            <div className="flex-grow">
-                                                <h3 className="text-lg font-bold">{title || 'Имя преподавателя'}</h3>
-                                                <p className="text-[10px] font-black text-primary uppercase">Общее отделение</p>
-                                            </div>
-                                        </div>
-                                        <div className="mt-4 flex flex-wrap gap-1.5">
-                                            {content.split(',').map((s: string, i: number) => (
-                                                <span key={i} className="px-2 py-0.5 bg-muted rounded text-[10px] font-bold uppercase">{s.trim() || 'Предмет'}</span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {submission.type === 'tool' && (
-                                    <div className="w-full max-w-sm bg-card border border-border rounded-2xl p-6 shadow-xl flex items-center gap-4">
-                                        <div className="p-3 bg-orange-500/10 text-orange-500 rounded-xl">
-                                            <Wrench size={24} />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-bold text-lg">{title || 'Инструмент'}</h3>
-                                            <p className="text-xs text-muted-foreground line-clamp-1">{content || 'Описание...'}</p>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                            <p className="text-center text-[10px] text-muted-foreground italic italic">Примерно так это будет выглядеть в общем списке</p>
-                        </div>
-                    </div>
-                </div>
-
-                <footer className="p-6 md:p-8 border-t border-border flex flex-col sm:flex-row justify-end gap-4 bg-secondary/10">
-                    <button
-                        onClick={() => onSave({ title, content, group, category, course })}
-                        disabled={isSaving}
-                        className="flex items-center justify-center gap-2 px-8 py-4 bg-secondary text-secondary-foreground rounded-2xl font-black transition-all hover:bg-muted active:scale-95"
-                    >
-                        <Save size={20} />
-                        В черновики
-                    </button>
-                    <button
-                        onClick={() => onApprove({ title, content, group, category, course })}
-                        disabled={isSaving}
-                        className="flex items-center justify-center gap-2 px-8 py-4 bg-primary text-primary-foreground rounded-2xl font-black transition-all hover:scale-105 active:scale-95 shadow-xl shadow-primary/20"
-                    >
-                        <Check size={20} />
-                        Одобрить и выложить
-                    </button>
-                </footer>
-            </div>
-        </div>
-    );
-};
-
 export default function AdminDashboard() {
     const [submissions, setSubmissions] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [editingSubmission, setEditingSubmission] = useState<any | null>(null);
     const router = useRouter();
+    const [subjects, setSubjects] = useState<any[]>([]);
+    const [showSubjectsModal, setShowSubjectsModal] = useState(false);
+    const [newSubject, setNewSubject] = useState('');
+    const [stats, setStats] = useState({ materials: 0, teachers: 0, tools: 0 });
 
     const fetchSubmissions = async () => {
         setLoading(true);
@@ -204,30 +28,68 @@ export default function AdminDashboard() {
         }
     };
 
+    const fetchSubjects = async () => {
+        try {
+            const res = await fetch('/api/admin/subjects');
+            if (res.ok) {
+                const data = await res.json();
+                setSubjects(data);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     useEffect(() => {
         fetchSubmissions();
-        // In a real app, we'd fetch stats here too
+        fetchSubjects();
+        // Mock stats or fetch if implemented
+        setStats({ materials: 12, teachers: 5, tools: 8 });
     }, []);
 
-    const handleModeration = async (id: number, action: 'approve' | 'reject' | 'save_draft', updatedData?: any) => {
+    const handleModeration = async (id: number, action: 'approve' | 'reject') => {
         try {
             const res = await fetch('/api/admin/moderation', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, action, updatedData }),
+                body: JSON.stringify({ id, action }),
             });
 
             if (res.ok) {
-                if (action === 'save_draft') {
-                    setSubmissions(submissions.map(s => s.id === id ? { ...s, ...updatedData, status: 'draft' } : s));
-                    setEditingSubmission(null);
-                } else {
-                    setSubmissions(submissions.filter(s => s.id !== id));
-                    setEditingSubmission(null);
-                }
+                setSubmissions(submissions.filter(s => s.id !== id));
             } else {
-                alert('Ошибка при выполнении');
+                alert('Ошибка при модерации');
             }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleAddSubject = async () => {
+        if (!newSubject) return;
+        try {
+            const res = await fetch('/api/admin/subjects', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: newSubject }),
+            });
+            if (res.ok) {
+                setNewSubject('');
+                fetchSubjects();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleDeleteSubject = async (id: number) => {
+        try {
+            const res = await fetch('/api/admin/subjects', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id }),
+            });
+            if (res.ok) fetchSubjects();
         } catch (err) {
             console.error(err);
         }
@@ -241,13 +103,38 @@ export default function AdminDashboard() {
 
     return (
         <div className="space-y-8 pb-20">
-            {editingSubmission && (
-                <EditorModal
-                    submission={editingSubmission}
-                    onClose={() => setEditingSubmission(null)}
-                    onSave={(data: any) => handleModeration(editingSubmission.id, 'save_draft', data)}
-                    onApprove={(data: any) => handleModeration(editingSubmission.id, 'approve', data)}
-                />
+            {showSubjectsModal && (
+                <div className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-xl flex items-center justify-center p-4">
+                    <div className="bg-card border border-border w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden p-8 space-y-6">
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-2xl font-black">Управление предметами</h2>
+                            <button onClick={() => setShowSubjectsModal(false)} className="p-2 hover:bg-muted rounded-full">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="flex gap-2">
+                            <input
+                                value={newSubject}
+                                onChange={(e) => setNewSubject(e.target.value)}
+                                placeholder="Название предмета..."
+                                className="flex-grow bg-secondary border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary outline-none"
+                            />
+                            <button onClick={handleAddSubject} className="bg-primary text-primary-foreground px-6 py-3 rounded-xl font-bold">
+                                Добавить
+                            </button>
+                        </div>
+                        <div className="max-h-[300px] overflow-y-auto space-y-2 no-scrollbar">
+                            {subjects.map((sub) => (
+                                <div key={sub.id} className="flex justify-between items-center p-3 bg-secondary/50 rounded-xl">
+                                    <span className="font-medium">{sub.name}</span>
+                                    <button onClick={() => handleDeleteSubject(sub.id)} className="text-destructive hover:bg-destructive/10 p-2 rounded-lg">
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
             )}
 
             <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-border pb-6">
@@ -256,6 +143,13 @@ export default function AdminDashboard() {
                     <p className="text-muted-foreground font-medium italic">БСС МТКП — Административный сектор</p>
                 </div>
                 <div className="flex gap-2">
+                    <button
+                        onClick={() => setShowSubjectsModal(true)}
+                        className="flex items-center gap-2 bg-secondary text-secondary-foreground hover:bg-muted px-4 py-2 rounded-xl text-sm font-bold transition-all"
+                    >
+                        <FileText size={16} />
+                        Предметы
+                    </button>
                     <button
                         onClick={fetchSubmissions}
                         className="p-2 bg-secondary text-secondary-foreground rounded-xl hover:bg-muted transition-all"
@@ -320,7 +214,7 @@ export default function AdminDashboard() {
                                         <td className="px-6 py-5 text-right">
                                             <div className="flex justify-end gap-2">
                                                 <button
-                                                    onClick={() => setEditingSubmission(sub)}
+                                                    onClick={() => router.push(`/admin/edit/${sub.id}`)}
                                                     className="p-2.5 bg-secondary text-secondary-foreground hover:bg-primary hover:text-white rounded-xl transition-all active:scale-90"
                                                     title="Редактировать"
                                                 >
@@ -354,6 +248,22 @@ export default function AdminDashboard() {
                     )}
                 </div>
             </section>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                    { label: 'Всего конспектов', value: stats.materials, icon: FileText },
+                    { label: 'Всего преподов', value: stats.teachers, icon: UserPlus },
+                    { label: 'Всего решалок', value: stats.tools, icon: Wrench },
+                ].map(stat => (
+                    <div key={stat.label} className="bg-secondary/30 border border-border/50 rounded-2xl p-6 space-y-2">
+                        <div className="flex justify-between items-center text-muted-foreground">
+                            <span className="text-xs font-black uppercase tracking-widest">{stat.label}</span>
+                            <stat.icon size={16} />
+                        </div>
+                        <p className="text-3xl font-black">{stat.value}</p>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }

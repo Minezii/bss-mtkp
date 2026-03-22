@@ -16,6 +16,7 @@ model Submission {
   group     String?  // New field for groups like "ТИП 11"
   content   String?  // description, link or review text
   fileUrl   String?
+  imageUrl  String?  // Photo for teachers or rich content
   status    String   @default("pending") // pending, approved, rejected, draft
   createdAt DateTime @default(now())
 }
@@ -35,6 +36,7 @@ model Material {
 model Teacher {
   id             Int      @id @default(autoincrement())
   name           String
+  imageUrl       String?  // Photo of the teacher
   department     String
   subjects       String   // Comma-separated list
   lecturesRating Float    @default(0)
@@ -52,5 +54,11 @@ model Tool {
   desc      String
   category  String
   url       String?
+  createdAt DateTime @default(now())
+}
+
+model Subject {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
   createdAt DateTime @default(now())
 }

@@ -106,8 +106,12 @@ export default function TeachersPage() {
                         >
                             <div className="flex flex-col sm:flex-row gap-6 relative z-10">
                                 <div className="flex-shrink-0 flex justify-center sm:block">
-                                    <div className="w-24 h-24 md:w-32 md:h-32 bg-secondary rounded-2xl flex items-center justify-center text-muted-foreground group-hover:bg-primary/5 transition-colors">
-                                        <User size={48} />
+                                    <div className="w-24 h-24 md:w-32 md:h-32 bg-secondary rounded-2xl flex items-center justify-center text-muted-foreground group-hover:bg-primary/5 transition-colors overflow-hidden border border-border">
+                                        {teacher.imageUrl ? (
+                                            <img src={teacher.imageUrl} alt={teacher.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <User size={48} />
+                                        )}
                                     </div>
                                 </div>
 
