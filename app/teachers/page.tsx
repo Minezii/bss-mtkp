@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, Star, MessageSquare, Filter, User, RefreshCcw } from 'lucide-react';
-
-
+import { Search, Star, MessageSquare, Filter, User, RefreshCcw, ThumbsUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import StarRating from '@/components/StarRating';
+import ReviewModal from '@/components/ReviewModal';
+import AuthModal from '@/components/AuthModal';
 
-const departments: string[] = []; // Будет заполнено позже пользователем
+const departments: string[] = ["Информатика", "Радиоаппаратостроение", "Социально-экономическое", "Общеобразовательное"];
 
 const RatingBar = ({ label, value }: { label: string; value: number }) => (
     <div className="space-y-1">
@@ -16,7 +17,7 @@ const RatingBar = ({ label, value }: { label: string; value: number }) => (
         </div>
         <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
             <div
-                className="h-full bg-primary rounded-full"
+                className="h-full bg-primary rounded-full transition-all duration-500"
                 style={{ width: `${(value / 5) * 100}%` }}
             />
         </div>
@@ -29,6 +30,11 @@ export default function TeachersPage() {
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedDept, setSelectedDept] = useState<string | 'all'>('all');
+
+    const [user, setUser] = useState<any>(null);
+    const [selectedTeacher, setSelectedTeacher] = useState<any>(null);
+    const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
     const fetchTeachers = async () => {
         setLoading(true);
@@ -47,7 +53,18 @@ export default function TeachersPage() {
 
     useEffect(() => {
         fetchTeachers();
+        const savedUser = localStorage.getItem('bss_user');
+        if (savedUser) setUser(JSON.parse(savedUser));
     }, []);
+
+    const handleRateClick = (teacher: any) => {
+        if (!user) {
+            setIsAuthModalOpen(true);
+        } else {
+            setSelectedTeacher(teacher);
+            setIsReviewModalOpen(true);
+        }
+    };
 
     const filteredTeachers = teachers.filter((t: any) => {
         const matchesSearch = t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -61,7 +78,7 @@ export default function TeachersPage() {
             <header className="space-y-4">
                 <h1 className="text-4xl font-extrabold tracking-tight">Преподаватели МТКП</h1>
                 <p className="text-muted-foreground text-lg max-w-2xl">
-                    Честные отзывы и независимые оценки студентов. Выбери своего фаворита (или подготовься к «душке» на сессии).
+                    Честные отзывы и независимые оценки студентов. Оставь свой отзыв, чтобы помочь остальным.
                 </p>
             </header>
 
@@ -102,7 +119,7 @@ export default function TeachersPage() {
                     filteredTeachers.map((teacher) => (
                         <div
                             key={teacher.id}
-                            className="bg-card border border-border rounded-3xl p-5 md:p-8 hover:shadow-2xl transition-all relative overflow-hidden group active:scale-[0.99]"
+                            className="bg-card border border-border rounded-3xl p-5 md:p-8 hover:shadow-2xl transition-all relative overflow-hidden group"
                         >
                             <div className="flex flex-col sm:flex-row gap-6 relative z-10">
                                 <div className="flex-shrink-0 flex justify-center sm:block">
@@ -136,27 +153,38 @@ export default function TeachersPage() {
                                         <RatingBar label="Справедливость" value={teacher.fairnessRating} />
                                     </div>
 
-                                    <div className="flex items-center justify-between pt-4">
-                                        <div className="flex items-center gap-1.5 text-primary">
-                                            <Star size={20} fill="currentColor" />
-                                            <span className="text-xl font-black">{teacher.overallRating}</span>
+                                    <div className="flex items-center justify-between pt-6">
+                                        <div className="flex flex-col gap-1">
+                                            <div className="flex items-center gap-2">
+                                                <StarRating rating={Math.round(teacher.overallRating)} size={18} />
+                                                <span className="text-lg font-black">{teacher.overallRating.toFixed(1)}</span>
+                                            </div>
+                                            <span className="text-xs text-muted-foreground font-bold uppercase">Общий рейтинг</span>
                                         </div>
-                                        <button
-                                            onClick={() => router.push('/submit?type=teacher')}
-                                            className="flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-primary transition-colors py-2 px-3 bg-secondary rounded-xl active:scale-95"
-                                        >
-                                            <MessageSquare size={18} />
-                                            {teacher.reviewsCount}
-                                        </button>
+
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary rounded-xl text-muted-foreground text-sm font-bold">
+                                                <MessageSquare size={16} />
+                                                {teacher.reviewsCount}
+                                            </div>
+                                            <button
+                                                onClick={() => handleRateClick(teacher)}
+                                                className="bg-primary text-primary-foreground px-6 py-2.5 rounded-xl font-bold text-sm hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-primary/20"
+                                            >
+                                                Оценить
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <div className="bg-primary text-primary-foreground px-4 py-1 rounded-bl-2xl font-bold text-sm">
-                                    ТОП
+                            {teacher.overallRating >= 4.5 && (
+                                <div className="absolute top-0 right-0 p-4">
+                                    <div className="bg-yellow-400 text-yellow-950 px-4 py-1 rounded-bl-2xl font-bold text-xs uppercase tracking-widest shadow-lg">
+                                        ТОП
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     ))
                 )}
@@ -167,6 +195,26 @@ export default function TeachersPage() {
                     <p className="text-muted-foreground text-lg">Преподаватель не найден. Попробуйте уточнить поиск.</p>
                 </div>
             )}
+
+            {selectedTeacher && (
+                <ReviewModal
+                    teacherId={selectedTeacher.id}
+                    teacherName={selectedTeacher.name}
+                    isOpen={isReviewModalOpen}
+                    onClose={() => setIsReviewModalOpen(false)}
+                    onSuccess={fetchTeachers}
+                />
+            )}
+
+            <AuthModal
+                isOpen={isAuthModalOpen}
+                onClose={() => setIsAuthModalOpen(false)}
+                onSuccess={() => {
+                    const savedUser = localStorage.getItem('bss_user');
+                    if (savedUser) setUser(JSON.parse(savedUser));
+                    window.location.reload();
+                }}
+            />
         </div>
     );
 }
