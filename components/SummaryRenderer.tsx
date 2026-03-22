@@ -6,11 +6,31 @@ import katex from "katex";
 import renderMathInElement from "katex/contrib/auto-render";
 import "katex/dist/katex.min.css";
 
+// Static imports for tools (safely handled by Next.js if they don't use window at top-level)
+// @ts-ignore
+import Header from "@editorjs/header";
+// @ts-ignore
+import List from "@editorjs/list";
+// @ts-ignore
+import Paragraph from "@editorjs/paragraph";
+// @ts-ignore
+import Delimiter from "@editorjs/delimiter";
+// @ts-ignore
+import CodeTool from "@editorjs/code";
+// @ts-ignore
+import Quote from "@editorjs/quote";
+// @ts-ignore
+import Marker from "@editorjs/marker";
+// @ts-ignore
+import InlineCode from "@editorjs/inline-code";
+// @ts-ignore
+import Table from "@editorjs/table";
+
 interface SummaryRendererProps {
     data: any;
 }
 
-// Custom AnyButton tool for Editor.js (Added to support Telegram links from the bot)
+// Custom AnyButton tool for Editor.js (Compatible with official renderer)
 class AnyButtonTool {
     static get isReadOnly() { return true; }
     data: any;
@@ -89,54 +109,41 @@ export default function SummaryRenderer({ data }: SummaryRendererProps) {
 
         const initEditor = async () => {
             try {
-                // @ts-ignore
+                // Load EditorJS dynamically only on client
                 const EditorJS = (await import("@editorjs/editorjs")).default;
-                // @ts-ignore
-                const Header = (await import("@editorjs/header")).default;
-                // @ts-ignore
-                const List = (await import("@editorjs/list")).default;
-                // @ts-ignore
-                const Paragraph = (await import("@editorjs/paragraph")).default;
-                // @ts-ignore
-                const Delimiter = (await import("@editorjs/delimiter")).default;
-                // @ts-ignore
-                const CodeTool = (await import("@editorjs/code")).default;
-                // @ts-ignore
-                const Quote = (await import("@editorjs/quote")).default;
-                // @ts-ignore
-                const Marker = (await import("@editorjs/marker")).default;
-                // @ts-ignore
-                const InlineCode = (await import("@editorjs/inline-code")).default;
-                // @ts-ignore
-                const Table = (await import("@editorjs/table")).default;
 
-                if (!editorRef.current) {
-                    const editor = new EditorJS({
-                        holder: containerRef.current as any,
-                        readOnly: true,
-                        autofocus: true,
-                        data: data,
-                        tools: {
-                            table: Table,
-                            header: { class: Header, inlineToolbar: true },
-                            list: { class: List, inlineToolbar: true },
-                            paragraph: { class: Paragraph, inlineToolbar: true },
-                            quote: { class: Quote, inlineToolbar: true },
-                            delimiter: Delimiter,
-                            code: CodeTool,
-                            marker: Marker,
-                            inlineCode: InlineCode,
-                            anyButton: AnyButtonTool as any,
-                        },
-                        onReady: () => {
-                            if (containerRef.current) {
-                                renderAllFormulas(containerRef.current);
-                            }
-                        },
-                    });
-
-                    editorRef.current = editor;
+                if (editorRef.current) {
+                    if (typeof editorRef.current.destroy === 'function') {
+                        await editorRef.current.destroy();
+                    }
+                    editorRef.current = null;
                 }
+
+                const editor = new EditorJS({
+                    holder: "editorjs",
+                    readOnly: true,
+                    autofocus: true,
+                    data: data,
+                    tools: {
+                        table: Table,
+                        header: { class: Header, inlineToolbar: true },
+                        list: { class: List, inlineToolbar: true },
+                        paragraph: { class: Paragraph, inlineToolbar: true },
+                        quote: { class: Quote, inlineToolbar: true },
+                        delimiter: Delimiter,
+                        code: CodeTool,
+                        marker: Marker,
+                        inlineCode: InlineCode,
+                        anyButton: AnyButtonTool as any,
+                    },
+                    onReady: () => {
+                        if (containerRef.current) {
+                            renderAllFormulas(containerRef.current);
+                        }
+                    },
+                });
+
+                editorRef.current = editor;
             } catch (err) {
                 console.error("Failed to initialize EditorJS:", err);
             }
@@ -160,7 +167,7 @@ export default function SummaryRenderer({ data }: SummaryRendererProps) {
                 __html: `
                 .ce-block__content { max-width: 100% !important; margin: 0 !important; }
                 .codex-editor__redactor { padding-bottom: 0 !important; margin-right: 0 !important; }
-                .ce-header { font-weight: 800; margin-top: 2rem; margin-bottom: 1rem; }
+                .ce-header { font-weight: 800; margin-top: 2rem; margin-bottom: 1rem; color: inherit; }
                 .ce-paragraph { font-size: 1.125rem; line-height: 1.75; color: hsl(var(--foreground) / 0.9); }
                 .ce-code__textarea { background: #0d1117 !important; color: #e6edf3 !important; border-radius: 1rem !important; }
                 .ce-table { border-collapse: collapse; margin: 2rem 0; width: 100%; border: 1px solid hsl(var(--border) / 0.5); }
