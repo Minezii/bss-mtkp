@@ -207,6 +207,29 @@ export default function Navbar() {
                                     </Link>
                                 );
                             })}
+
+                            <div className="pt-4 border-t border-border/50">
+                                {user ? (
+                                    <button
+                                        onClick={handleLogout}
+                                        className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl text-lg font-bold text-destructive hover:bg-destructive/10 transition-all"
+                                    >
+                                        <LogOut size={24} />
+                                        Выйти
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={() => {
+                                            setIsMenuOpen(false);
+                                            setIsAuthModalOpen(true);
+                                        }}
+                                        className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl text-lg font-bold bg-primary text-primary-foreground shadow-lg active:scale-95 transition-all"
+                                    >
+                                        <User size={24} />
+                                        Войти в аккаунт
+                                    </button>
+                                )}
+                            </div>
                         </div>
 
                         <div className="mt-auto pt-6 border-t border-border">
