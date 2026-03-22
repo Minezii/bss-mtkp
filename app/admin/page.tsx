@@ -169,10 +169,15 @@ export default function AdminDashboard() {
 
             <section className="space-y-6">
                 <h2 className="text-2xl font-extrabold flex items-center gap-3">
-                    Новые заявки
+                    Все активные заявки
                     <span className="bg-primary text-primary-foreground text-sm px-3 py-0.5 rounded-full shadow-lg">
                         {submissions.length}
                     </span>
+                    {submissions.some(s => s.status === 'draft') && (
+                        <span className="text-xs font-bold text-orange-500 bg-orange-500/10 px-3 py-0.5 rounded-full">
+                            Включая черновики
+                        </span>
+                    )}
                 </h2>
 
                 <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-2xl shadow-black/5 -mx-4 md:mx-0">

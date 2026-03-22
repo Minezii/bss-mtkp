@@ -5,7 +5,9 @@ export async function GET() {
     const prisma = (await import('@/lib/prisma')).default;
     try {
         const submissions = await prisma.submission.findMany({
-            where: { status: 'pending' },
+            where: {
+                status: { in: ['pending', 'draft'] }
+            },
             orderBy: { createdAt: 'desc' },
         });
 
