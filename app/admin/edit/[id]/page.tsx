@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import {
     X, Check, Save, Eye, FileText, UserPlus, Wrench,
     Bold, Italic, List, Link as LinkIcon, Heading1, Heading2,
-    ChevronLeft, Image as ImageIcon, Search, Trash2, RefreshCcw
+    ChevronLeft, Image as ImageIcon, Search, Trash2, RefreshCcw, Sparkles
 } from 'lucide-react';
 import SummaryRenderer from '@/components/SummaryRenderer';
 
@@ -167,6 +167,43 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
         });
         flushList();
         return { blocks };
+    };
+
+    const handleAutoformat = () => {
+        if (!content) return;
+
+        let lines = content.split('\n');
+        let formattedLines = lines.map((line, index) => {
+            let trimmed = line.trim();
+            if (!trimmed) return '';
+
+            // 1. Detect Headers (Topic, Lecture, or short uppercase lines)
+            if (trimmed.startsWith('Тема:') || trimmed.startsWith('Лекция:')) {
+                return `## ${trimmed}`;
+            }
+            if (trimmed.length < 50 && trimmed === trimmed.toUpperCase() && trimmed.length > 3) {
+                return `## ${trimmed}`;
+            }
+
+            // 2. Format Lists
+            if (/^(\d+\.|\-|\*|•)/.test(trimmed)) {
+                return `- ${trimmed.replace(/^(\d+\.|\-|\*|•)\s*/, '')}`;
+            }
+
+            // 3. Definition pattern: "Word - Description" -> "**Word** — Description"
+            if (trimmed.includes(' - ') && !trimmed.startsWith('#')) {
+                let parts = trimmed.split(' - ');
+                if (parts[0].length < 30) {
+                    return `**${parts[0].trim()}** — ${parts[1].trim()}`;
+                }
+            }
+
+            return trimmed;
+        });
+
+        // 4. Clean up: Remove triple newlines, ensure spacing
+        let result = formattedLines.join('\n').replace(/\n{3,}/g, '\n\n');
+        setContent(result);
     };
 
     if (loading) return (
@@ -347,6 +384,15 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
                                                 <div className="w-px h-6 bg-border mx-1" />
                                                 <button onClick={() => insertText('- ', '')} className="p-2.5 hover:bg-muted rounded-xl" title="Список"><List size={18} /></button>
                                                 <button onClick={() => insertText('[', '](url)')} className="p-2.5 hover:bg-muted rounded-xl" title="Ссылка"><LinkIcon size={18} /></button>
+                                                <div className="w-px h-6 bg-border mx-1" />
+                                                <button
+                                                    onClick={handleAutoformat}
+                                                    className="p-2.5 px-4 bg-primary/10 text-primary hover:bg-primary/20 rounded-xl flex items-center gap-2 transition-all group shrink-0"
+                                                    title="Автоформатирование"
+                                                >
+                                                    <Sparkles size={18} className="group-hover:rotate-12 transition-transform" />
+                                                    <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Магия</span>
+                                                </button>
                                             </div>
                                             <textarea
                                                 id="editor-textarea"
