@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Send, Upload, CheckCircle2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { submitAction } from '@/app/actions/submit';
 
 type SubmissionType = 'material' | 'teacher' | 'tool';
 
@@ -20,30 +21,15 @@ export default function SubmitPage() {
 
         const form = e.target as HTMLFormElement;
         const formData = new FormData(form);
-        const data = {
-            type,
-            title: formData.get('title'),
-            author: formData.get('name'),
-            group: formData.get('group'),
-            content: formData.get('desc'),
-            fileUrl: selectedFile ? `[attached: ${selectedFile.name}]` : '',
-        };
 
         try {
-            const res = await fetch('/api/submit', {
-                method: 'POST',
-                // When sending FormData, the 'Content-Type' header is usually set automatically by the browser
-                // to 'multipart/form-data' with the correct boundary.
-                // Explicitly setting 'Content-Type': 'application/json' would be incorrect here.
-                body: formData, // Send FormData directly
-            });
+            const result = await submitAction(formData);
 
-            if (res.ok) {
-                const result = await res.json();
-                setCheckId(result.checkId);
+            if (result.success) {
+                setCheckId(result.checkId || '');
                 setIsSuccess(true);
             } else {
-                alert('Ошибка при отправке. Попробуй позже.');
+                alert(result.error || 'Ошибка при отправке. Попробуй позже.');
             }
         } catch (err) {
             console.error(err);
