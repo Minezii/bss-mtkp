@@ -47,7 +47,7 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
                     setSubject(data.subject || '');
                     setGroup(data.group || '');
                     setImageUrl(data.imageUrl || '');
-                    setCategory(data.category || 'Конспект');
+                    setCategory(data.category || (data.type === 'tool' ? 'Математика' : 'Конспект'));
                     if (data.type === 'teacher' && data.content) {
                         setSelectedSubjects(data.content.split(',').map((s: string) => s.trim()));
                     }
@@ -311,6 +311,21 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
                                     </div>
                                 </div>
                             )}
+                            {submission.type === 'tool' && (
+                                <div className="space-y-2">
+                                    <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Категория</label>
+                                    <select
+                                        value={category}
+                                        onChange={(e) => setCategory(e.target.value)}
+                                        className="w-full bg-secondary border-none rounded-2xl py-4 px-5 focus:ring-2 focus:ring-primary outline-none transition-all font-bold appearance-none cursor-pointer"
+                                    >
+                                        <option value="Математика">Математика</option>
+                                        <option value="Работа с текстом">Работа с текстом</option>
+                                        <option value="Программирование">Программирование</option>
+                                        <option value="Естественные науки">Естественные науки</option>
+                                    </select>
+                                </div>
+                            )}
                         </div>
 
                         {/* Formatting Toolbar & Content */}
@@ -483,7 +498,12 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
                                         <Wrench size={32} />
                                     </div>
                                     <div className="space-y-1">
-                                        <h3 className="font-black text-xl leading-tight">{title || 'Инструмент'}</h3>
+                                        <div className="flex justify-between items-center">
+                                            <h3 className="font-black text-xl leading-tight">{title || 'Инструмент'}</h3>
+                                            <span className="text-[8px] font-black uppercase tracking-widest bg-orange-500/10 text-orange-500 px-2 py-1 rounded-md">
+                                                {category}
+                                            </span>
+                                        </div>
                                         <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{content || 'Описание...'}</p>
                                     </div>
                                 </div>

@@ -12,8 +12,9 @@ export default function AdminDashboard() {
     const [showSubjectsModal, setShowSubjectsModal] = useState(false);
     const [newSubject, setNewSubject] = useState('');
     const [stats, setStats] = useState({ materials: 0, teachers: 0, tools: 0 });
-    const [activeTab, setActiveTab] = useState<'submissions' | 'materials'>('submissions');
+    const [activeTab, setActiveTab] = useState<'submissions' | 'materials' | 'tools'>('submissions');
     const [materials, setMaterials] = useState<any[]>([]);
+    const [tools, setTools] = useState<any[]>([]);
 
     const fetchSubmissions = async () => {
         setLoading(true);
@@ -55,11 +56,24 @@ export default function AdminDashboard() {
         }
     };
 
+    const fetchTools = async () => {
+        try {
+            const res = await fetch('/api/admin/tools');
+            if (res.ok) {
+                const data = await res.json();
+                setTools(data);
+                setStats(s => ({ ...s, tools: data.length }));
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     useEffect(() => {
         fetchSubmissions();
         fetchSubjects();
         fetchMaterials();
-        // Fetch teachers and tools stats if needed
+        fetchTools();
     }, []);
 
     const handleModeration = async (id: number, action: 'approve' | 'reject') => {
@@ -119,6 +133,20 @@ export default function AdminDashboard() {
                 body: JSON.stringify({ id }),
             });
             if (res.ok) fetchMaterials();
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleDeleteTool = async (id: number) => {
+        if (!confirm('Удалить этот инструмент навсегда?')) return;
+        try {
+            const res = await fetch('/api/admin/tools', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id }),
+            });
+            if (res.ok) fetchTools();
         } catch (err) {
             console.error(err);
         }
@@ -211,10 +239,18 @@ export default function AdminDashboard() {
                         >
                             Конспекты ({materials.length})
                         </button>
+                        <button
+                            onClick={() => setActiveTab('tools')}
+                            className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'tools' ? 'bg-primary text-primary-foreground shadow-lg' : 'hover:bg-muted'}`}
+                        >
+                            Инструменты ({tools.length})
+                        </button>
                     </div>
 
                     <h2 className="text-xl font-black flex items-center gap-3">
-                        {activeTab === 'submissions' ? 'Активные заявки' : 'Опубликованные конспекты'}
+                        {activeTab === 'submissions' && 'Активные заявки'}
+                        {activeTab === 'materials' && 'Опубликованные конспекты'}
+                        {activeTab === 'tools' && 'Библиотека инструментов'}
                         {activeTab === 'submissions' && submissions.some(s => s.status === 'draft') && (
                             <span className="text-xs font-bold text-orange-500 bg-orange-500/10 px-3 py-0.5 rounded-full">
                                 + черновики
@@ -263,7 +299,7 @@ export default function AdminDashboard() {
                                             </td>
                                         </tr>
                                     ))
-                                ) : (
+                                ) : activeTab === 'materials' ? (
                                     materials.map((m) => (
                                         <tr key={m.id} className="hover:bg-muted/30 transition-colors text-sm group">
                                             <td className="px-6 py-5 font-bold text-primary">{m.subject}</td>
@@ -278,11 +314,26 @@ export default function AdminDashboard() {
                                             </td>
                                         </tr>
                                     ))
-                                )}
+                                ) : activeTab === 'tools' ? (
+                                    tools.map((t) => (
+                                        <tr key={t.id} className="hover:bg-muted/30 transition-colors text-sm group">
+                                            <td className="px-6 py-5 font-bold text-orange-500">{t.category}</td>
+                                            <td className="px-6 py-5 font-bold">{t.name}</td>
+                                            <td className="px-6 py-5 font-medium text-muted-foreground max-w-[200px] truncate">{t.desc}</td>
+                                            <td className="px-6 py-5 text-muted-foreground text-xs">{new Date(t.createdAt).toLocaleDateString()}</td>
+                                            <td className="px-6 py-5 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <button onClick={() => window.open(t.url, '_blank')} className="p-2.5 bg-secondary hover:bg-primary hover:text-white rounded-xl transition-all"><Eye size={18} /></button>
+                                                    <button onClick={() => handleDeleteTool(t.id)} className="p-2.5 bg-destructive/10 text-destructive hover:bg-destructive hover:text-white rounded-xl transition-all"><Trash2 size={18} /></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : null}
                             </tbody>
                         </table>
                     </div>
-                    {((activeTab === 'submissions' && submissions.length === 0) || (activeTab === 'materials' && materials.length === 0)) && !loading && (
+                    {((activeTab === 'submissions' && submissions.length === 0) || (activeTab === 'materials' && materials.length === 0) || (activeTab === 'tools' && tools.length === 0)) && !loading && (
                         <div className="py-24 text-center text-muted-foreground italic font-medium">
                             Тут пока пусто... ☕
                         </div>

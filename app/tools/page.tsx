@@ -78,7 +78,7 @@ export default function ToolsPage() {
 
     const categorizedTools = baseCategories.map(cat => ({
         ...cat,
-        tools: tools.filter(t => t.category === cat.title || (cat.title === 'Естественные науки' && t.category === 'Разное'))
+        tools: tools.filter(t => t.category === cat.title)
     }));
 
     return (
