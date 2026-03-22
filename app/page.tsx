@@ -79,7 +79,7 @@ export default function Home() {
               href="https://t.me/BssMtkp"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full sm:w-auto bg-primary-foreground/10 border-2 border-primary-foreground/20 text-primary-foreground px-8 py-4 rounded-2xl font-bold hover:bg-primary-foreground/20 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto bg-primary-foreground/10 text-primary-foreground px-8 py-4 rounded-2xl font-bold hover:bg-primary-foreground/20 transition-all active:scale-95 flex items-center justify-center gap-2 outline-none"
             >
               <Send size={20} />
               Наш Telegram
