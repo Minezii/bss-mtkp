@@ -18,6 +18,9 @@ export async function submitAction(formData: FormData) {
             return { error: 'Missing required fields' };
         }
 
+        const { getCurrentUser } = await import('@/lib/auth');
+        const user = await getCurrentUser();
+
         const submission = await prisma.submission.create({
             data: {
                 type,
@@ -28,6 +31,7 @@ export async function submitAction(formData: FormData) {
                 fileUrl: fileUrl,
                 status: 'pending',
                 checkId: crypto.randomUUID(),
+                userId: user?.id || null,
             },
         });
 
