@@ -35,7 +35,7 @@ export default function SummariesEntryPage() {
                 </h1>
 
                 <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-                    Вставь ссылку на конспект или его UUID, чтобы просмотреть его в удобном формате.
+                    Вставь ссылку на конспект, чтобы просмотреть его в удобном формате.
                 </p>
 
                 <form onSubmit={handleOpen} className="relative group max-w-xl mx-auto w-full pt-4">
@@ -47,7 +47,7 @@ export default function SummariesEntryPage() {
                                 type="text"
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
-                                placeholder="Вставьте ссылку на конспект или UUID..."
+                                placeholder="Вставьте ссылку..."
                                 className="w-full bg-secondary/50 border-none rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-2 focus:ring-primary transition-all font-mono text-sm"
                             />
                         </div>
