@@ -72,10 +72,10 @@ export default function SummaryPage() {
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={() => setIsPublishModalOpen(true)}
-                                disabled={isPublished}
+                                disabled={isPublished || loading || !summary}
                                 className={`p-3 rounded-2xl border-2 transition-all flex items-center gap-2 font-bold text-sm ${isPublished
-                                        ? 'bg-green-500/10 border-green-500/20 text-green-500'
-                                        : 'bg-primary border-primary text-primary-foreground hover:scale-105 active:scale-95 shadow-lg shadow-primary/20'
+                                    ? 'bg-green-500/10 border-green-500/20 text-green-500'
+                                    : 'bg-primary border-primary text-primary-foreground hover:scale-105 active:scale-95 shadow-lg shadow-primary/20'
                                     }`}
                             >
                                 <Globe size={20} />
@@ -202,7 +202,7 @@ export default function SummaryPage() {
                 onSuccess={() => setIsPublished(true)}
                 summaryData={{
                     uuid: uuid as string,
-                    title: summary.name || 'AI Конспект'
+                    title: summary?.name || 'AI Конспект'
                 }}
             />
         </div>
