@@ -177,23 +177,29 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
             let trimmed = line.trim();
             if (!trimmed) return '';
 
-            // 1. Detect Headers (Topic, Lecture, or short uppercase lines)
-            if (trimmed.startsWith('Тема:') || trimmed.startsWith('Лекция:')) {
+            // 1. Detect Headers (Topic, Lecture, Question or short uppercase lines)
+            const headerRegex = /^(тема|лекция|предмет|вопрос|глава|раздел):/i;
+            if (headerRegex.test(trimmed)) {
                 return `## ${trimmed}`;
             }
-            if (trimmed.length < 50 && trimmed === trimmed.toUpperCase() && trimmed.length > 3) {
-                return `## ${trimmed}`;
+            if (trimmed.length < 50 && trimmed.length > 3 && !trimmed.startsWith('#')) {
+                // If line is mostly uppercase (allowing for some symbols/numbers)
+                const alpha = trimmed.replace(/[^а-яa-z]/gi, '');
+                if (alpha.length > 0 && alpha === alpha.toUpperCase()) {
+                    return `## ${trimmed}`;
+                }
             }
 
-            // 2. Format Lists
-            if (/^(\d+\.|\-|\*|•)/.test(trimmed)) {
-                return `- ${trimmed.replace(/^(\d+\.|\-|\*|•)\s*/, '')}`;
+            // 2. Format Lists (supports: 1., 1), -, *, •)
+            if (/^(\d+[\.\)]|\-|\*|•)/.test(trimmed)) {
+                return `- ${trimmed.replace(/^(\d+[\.\)]|\-|\*|•)\s*/, '')}`;
             }
 
-            // 3. Definition pattern: "Word - Description" -> "**Word** — Description"
-            if (trimmed.includes(' - ') && !trimmed.startsWith('#')) {
-                let parts = trimmed.split(' - ');
-                if (parts[0].length < 30) {
+            // 3. Definition pattern: "Word - Description" or "Word: Description" -> "**Word** — Description"
+            if ((trimmed.includes(' - ') || trimmed.includes(': ')) && !trimmed.startsWith('#')) {
+                const separator = trimmed.includes(' - ') ? ' - ' : ': ';
+                let parts = trimmed.split(separator);
+                if (parts[0].length < 40 && parts[1]?.length > 2) {
                     return `**${parts[0].trim()}** — ${parts[1].trim()}`;
                 }
             }

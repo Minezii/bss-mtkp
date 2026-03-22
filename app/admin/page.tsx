@@ -12,6 +12,8 @@ export default function AdminDashboard() {
     const [showSubjectsModal, setShowSubjectsModal] = useState(false);
     const [newSubject, setNewSubject] = useState('');
     const [stats, setStats] = useState({ materials: 0, teachers: 0, tools: 0 });
+    const [activeTab, setActiveTab] = useState<'submissions' | 'materials'>('submissions');
+    const [materials, setMaterials] = useState<any[]>([]);
 
     const fetchSubmissions = async () => {
         setLoading(true);
@@ -40,11 +42,24 @@ export default function AdminDashboard() {
         }
     };
 
+    const fetchMaterials = async () => {
+        try {
+            const res = await fetch('/api/admin/materials');
+            if (res.ok) {
+                const data = await res.json();
+                setMaterials(data);
+                setStats(s => ({ ...s, materials: data.length }));
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     useEffect(() => {
         fetchSubmissions();
         fetchSubjects();
-        // Mock stats or fetch if implemented
-        setStats({ materials: 12, teachers: 5, tools: 8 });
+        fetchMaterials();
+        // Fetch teachers and tools stats if needed
     }, []);
 
     const handleModeration = async (id: number, action: 'approve' | 'reject') => {
@@ -90,6 +105,20 @@ export default function AdminDashboard() {
                 body: JSON.stringify({ id }),
             });
             if (res.ok) fetchSubjects();
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleDeleteMaterial = async (id: number) => {
+        if (!confirm('Удалить этот конспект навсегда?')) return;
+        try {
+            const res = await fetch('/api/admin/materials', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id }),
+            });
+            if (res.ok) fetchMaterials();
         } catch (err) {
             console.error(err);
         }
@@ -168,87 +197,94 @@ export default function AdminDashboard() {
             </header>
 
             <section className="space-y-6">
-                <h2 className="text-2xl font-extrabold flex items-center gap-3">
-                    Все активные заявки
-                    <span className="bg-primary text-primary-foreground text-sm px-3 py-0.5 rounded-full shadow-lg">
-                        {submissions.length}
-                    </span>
-                    {submissions.some(s => s.status === 'draft') && (
-                        <span className="text-xs font-bold text-orange-500 bg-orange-500/10 px-3 py-0.5 rounded-full">
-                            Включая черновики
-                        </span>
-                    )}
-                </h2>
+                <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+                    <div className="flex p-1 bg-secondary rounded-2xl">
+                        <button
+                            onClick={() => setActiveTab('submissions')}
+                            className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'submissions' ? 'bg-primary text-primary-foreground shadow-lg' : 'hover:bg-muted'}`}
+                        >
+                            Заявки ({submissions.length})
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('materials')}
+                            className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'materials' ? 'bg-primary text-primary-foreground shadow-lg' : 'hover:bg-muted'}`}
+                        >
+                            Конспекты ({materials.length})
+                        </button>
+                    </div>
+
+                    <h2 className="text-xl font-black flex items-center gap-3">
+                        {activeTab === 'submissions' ? 'Активные заявки' : 'Опубликованные конспекты'}
+                        {activeTab === 'submissions' && submissions.some(s => s.status === 'draft') && (
+                            <span className="text-xs font-bold text-orange-500 bg-orange-500/10 px-3 py-0.5 rounded-full">
+                                + черновики
+                            </span>
+                        )}
+                    </h2>
+                </div>
 
                 <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-2xl shadow-black/5 -mx-4 md:mx-0">
                     <div className="overflow-x-auto no-scrollbar">
                         <table className="w-full text-left min-w-[600px]">
                             <thead>
                                 <tr className="bg-secondary/50 text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em] border-b border-border">
-                                    <th className="px-6 py-5">Тип</th>
-                                    <th className="px-6 py-5">Название / Тема</th>
-                                    <th className="px-6 py-5">Автор</th>
+                                    <th className="px-6 py-5">{activeTab === 'submissions' ? 'Тип' : 'Предмет'}</th>
+                                    <th className="px-6 py-5">Название</th>
+                                    <th className="px-6 py-5">{activeTab === 'submissions' ? 'Автор' : 'Курс'}</th>
                                     <th className="px-6 py-5">Дата</th>
                                     <th className="px-6 py-5 text-right">Действие</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border">
-                                {submissions.map((sub) => (
-                                    <tr key={sub.id} className={`hover:bg-muted/30 transition-colors text-sm group ${sub.status === 'draft' ? 'bg-orange-500/5' : ''}`}>
-                                        <td className="px-6 py-5">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-secondary rounded-lg group-hover:bg-primary/5 transition-colors">
-                                                    {sub.type === 'material' && <FileText size={18} className="text-blue-500" />}
-                                                    {sub.type === 'teacher' && <UserPlus size={18} className="text-emerald-500" />}
-                                                    {sub.type === 'tool' && <Wrench size={18} className="text-orange-500" />}
+                                {activeTab === 'submissions' ? (
+                                    submissions.map((sub) => (
+                                        <tr key={sub.id} className={`hover:bg-muted/30 transition-colors text-sm group ${sub.status === 'draft' ? 'bg-orange-500/5' : ''}`}>
+                                            <td className="px-6 py-5">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2 bg-secondary rounded-lg group-hover:bg-primary/5 transition-colors">
+                                                        {sub.type === 'material' && <FileText size={18} className="text-blue-500" />}
+                                                        {sub.type === 'teacher' && <UserPlus size={18} className="text-emerald-500" />}
+                                                        {sub.type === 'tool' && <Wrench size={18} className="text-orange-500" />}
+                                                    </div>
+                                                    {sub.status === 'draft' && (
+                                                        <span className="text-[8px] font-black uppercase tracking-widest bg-orange-500 text-white px-1.5 py-0.5 rounded">Черновик</span>
+                                                    )}
                                                 </div>
-                                                {sub.status === 'draft' && (
-                                                    <span className="text-[8px] font-black uppercase tracking-widest bg-orange-500 text-white px-1.5 py-0.5 rounded">Черновик</span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="font-bold text-foreground">{sub.title}</div>
-                                            <div className="text-[10px] text-muted-foreground mt-1 line-clamp-1 max-w-[200px]">{sub.content}</div>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="text-muted-foreground font-medium">{sub.author}</div>
-                                            {sub.group && <div className="text-[10px] font-black text-primary mt-1">{sub.group}</div>}
-                                        </td>
-                                        <td className="px-6 py-5 text-muted-foreground">{new Date(sub.createdAt).toLocaleDateString()}</td>
-                                        <td className="px-6 py-5 text-right">
-                                            <div className="flex justify-end gap-2">
-                                                <button
-                                                    onClick={() => router.push(`/admin/edit/${sub.id}`)}
-                                                    className="p-2.5 bg-secondary text-secondary-foreground hover:bg-primary hover:text-white rounded-xl transition-all active:scale-90"
-                                                    title="Редактировать"
-                                                >
-                                                    <Edit3 size={18} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleModeration(sub.id, 'approve')}
-                                                    className="p-2.5 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white rounded-xl transition-all active:scale-90"
-                                                    title="Быстрое одобрение"
-                                                >
-                                                    <Check size={18} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleModeration(sub.id, 'reject')}
-                                                    className="p-2.5 bg-destructive/10 text-destructive hover:bg-destructive hover:text-white rounded-xl transition-all active:scale-90"
-                                                    title="Отклонить"
-                                                >
-                                                    <X size={18} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
+                                            </td>
+                                            <td className="px-6 py-5 font-bold">{sub.title}</td>
+                                            <td className="px-6 py-5 font-medium text-muted-foreground">{sub.author} {sub.group && `[${sub.group}]`}</td>
+                                            <td className="px-6 py-5 text-muted-foreground text-xs">{new Date(sub.createdAt).toLocaleDateString()}</td>
+                                            <td className="px-6 py-5 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <button onClick={() => router.push(`/admin/edit/${sub.id}`)} className="p-2.5 bg-secondary hover:bg-primary hover:text-white rounded-xl transition-all"><Edit3 size={18} /></button>
+                                                    <button onClick={() => handleModeration(sub.id, 'approve')} className="p-2.5 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white rounded-xl transition-all"><Check size={18} /></button>
+                                                    <button onClick={() => handleModeration(sub.id, 'reject')} className="p-2.5 bg-destructive/10 text-destructive hover:bg-destructive hover:text-white rounded-xl transition-all"><X size={18} /></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    materials.map((m) => (
+                                        <tr key={m.id} className="hover:bg-muted/30 transition-colors text-sm group">
+                                            <td className="px-6 py-5 font-bold text-primary">{m.subject}</td>
+                                            <td className="px-6 py-5 font-bold">{m.title}</td>
+                                            <td className="px-6 py-5 font-black text-xs uppercase opacity-60">{m.course} курс</td>
+                                            <td className="px-6 py-5 text-muted-foreground text-xs">{new Date(m.createdAt).toLocaleDateString()}</td>
+                                            <td className="px-6 py-5 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <button onClick={() => window.open(m.fileUrl || `/material/${m.id}`, '_blank')} className="p-2.5 bg-secondary hover:bg-primary hover:text-white rounded-xl transition-all"><Eye size={18} /></button>
+                                                    <button onClick={() => handleDeleteMaterial(m.id)} className="p-2.5 bg-destructive/10 text-destructive hover:bg-destructive hover:text-white rounded-xl transition-all"><Trash2 size={18} /></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>
-                    {submissions.length === 0 && !loading && (
+                    {((activeTab === 'submissions' && submissions.length === 0) || (activeTab === 'materials' && materials.length === 0)) && !loading && (
                         <div className="py-24 text-center text-muted-foreground italic font-medium">
-                            Все заявки обработаны. Отдыхай, админ! ☕
+                            Тут пока пусто... ☕
                         </div>
                     )}
                 </div>
