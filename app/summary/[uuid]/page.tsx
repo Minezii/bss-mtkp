@@ -2,14 +2,35 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ChevronLeft, Share2, BookOpen, Clock, AlertCircle, RefreshCcw, ListChecks, Sparkles, Zap, Globe } from 'lucide-react';
+import {
+    ArrowLeft,
+    Share2,
+    Globe,
+    Send,
+    BookOpen,
+    RefreshCcw,
+    Sparkles,
+    ArrowRight,
+    ListChecks,
+    ChevronLeft,
+    Clock,
+    Zap
+} from 'lucide-react';
 import SummaryRenderer from '@/components/SummaryRenderer';
 import PublishSummaryModal from '@/components/PublishSummaryModal';
 
+const LOADING_PHRASES = [
+    "Загрузка конспекта...",
+    "Почти готово...",
+    "Обработка данных...",
+    "Секундочку...",
+    "Генерируем красоту...",
+    "Ищем знания...",
+];
+
 export default function SummaryPage() {
-    const params = useParams();
+    const { uuid } = useParams() as { uuid: string };
     const router = useRouter();
-    const uuid = params.uuid as string;
 
     const [summary, setSummary] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -18,6 +39,27 @@ export default function SummaryPage() {
     const [isPublished, setIsPublished] = useState(false);
     const [justPublished, setJustPublished] = useState(false);
     const [checkingStatus, setCheckingStatus] = useState(true);
+
+    const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
+    const [fade, setFade] = useState(true);
+
+    useEffect(() => {
+        if (!loading) return;
+        const interval = setInterval(() => {
+            setFade(false);
+            setTimeout(() => {
+                setCurrentPhraseIndex((prev) => {
+                    let next;
+                    do {
+                        next = Math.floor(Math.random() * LOADING_PHRASES.length);
+                    } while (next === prev);
+                    return next;
+                });
+                setFade(true);
+            }, 250);
+        }, 2000);
+        return () => clearInterval(interval);
+    }, [loading]);
 
     useEffect(() => {
         if (uuid) {
@@ -117,31 +159,40 @@ export default function SummaryPage() {
 
             <main className="max-w-4xl mx-auto px-4 pt-12">
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center py-20 animate-pulse text-muted-foreground">
-                        <RefreshCcw size={48} className="animate-spin mb-4 text-primary" />
-                        <p className="font-bold text-lg">Генерируем красоту...</p>
-                        <p className="text-sm">Это может занять пару секунд</p>
+                    <div className="flex flex-col items-center justify-center py-20 text-center">
+                        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-8 animate-bounce">
+                            <Sparkles size={32} className="text-primary" />
+                        </div>
+                        <div className={`text-lg font-medium transition-opacity duration-500 ${fade ? "opacity-100" : "opacity-0"}`}>
+                            {LOADING_PHRASES[currentPhraseIndex]}
+                        </div>
                     </div>
                 ) : error ? (
                     <div className="flex flex-col items-center justify-center py-20 text-center max-w-md mx-auto">
                         <div className="w-16 h-16 bg-destructive/10 text-destructive rounded-full flex items-center justify-center mb-6">
-                            <AlertCircle size={32} />
+                            <ArrowRight size={32} className="rotate-180" />
                         </div>
-                        <h2 className="text-2xl font-bold mb-4">Упс! Что-то пошло не так</h2>
-                        <p className="text-muted-foreground mb-8 leading-relaxed">
-                            {error}
+                        <h2 className="text-2xl font-black mb-2">Конспект не найден</h2>
+                        <p className="text-muted-foreground mb-8">
+                            Похоже, UUID неверный или конспект был удален.
                         </p>
                         <button
-                            onClick={() => router.push('/')}
-                            className="bg-primary text-primary-foreground px-8 py-3 rounded-2xl font-bold hover:scale-105 transition-transform active:scale-95 shadow-lg shadow-primary/20"
+                            onClick={() => router.push('/summaries')}
+                            className="bg-primary text-primary-foreground px-8 py-4 rounded-2xl font-bold flex items-center gap-2 hover:scale-105 transition-all"
                         >
-                            Вернуться на главную
+                            Попробовать другой
                         </button>
                     </div>
-                ) : summary ? (
+                ) : (
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                        {/* Meta info */}
-                        <div className="flex flex-wrap items-center gap-4 mb-8 text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                        <h1
+                            className="text-3xl md:text-5xl font-black mb-4 leading-tight ce-header"
+                            style={{ fontFamily: 'Inter, var(--font-inter), sans-serif' }}
+                        >
+                            {summary?.name}
+                        </h1>
+
+                        <div className="flex flex-wrap items-center gap-3 mb-8 text-sm font-bold text-muted-foreground uppercase tracking-wider">
                             <span className="flex items-center gap-1.5 py-1.5 px-3 bg-secondary rounded-full">
                                 <BookOpen size={14} />
                                 Автоматический конспект
@@ -185,7 +236,7 @@ export default function SummaryPage() {
                             </div>
                         )}
 
-                        <SummaryRenderer blocks={summary.message?.blocks || []} />
+                        {summary && <SummaryRenderer data={summary.message} />}
 
                         {/* Footer / Outro */}
                         <div className="mt-20 pt-10 border-t border-border flex flex-col items-center gap-6">
@@ -206,7 +257,7 @@ export default function SummaryPage() {
                             </button>
                         </div>
                     </div>
-                ) : null}
+                )}
             </main>
 
             <PublishSummaryModal
