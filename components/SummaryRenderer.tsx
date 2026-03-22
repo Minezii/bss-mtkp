@@ -45,9 +45,13 @@ export default function SummaryRenderer({ blocks }: SummaryRendererProps) {
                 const ListTag = block.data.style === 'ordered' ? 'ol' : 'ul';
                 return (
                     <ListTag key={index} className={`mb-6 space-y-3 ${block.data.style === 'ordered' ? 'list-decimal' : 'list-disc'} list-outside ml-6 text-foreground/90`}>
-                        {block.data.items.map((item: string, i: number) => (
-                            <li key={i} className="pl-2 leading-relaxed" dangerouslySetInnerHTML={{ __html: item }} />
-                        ))}
+                        {block.data.items.map((item: any, i: number) => {
+                            // Support string items or object items (Nested List or newer Editor.js format)
+                            const content = typeof item === 'string' ? item : (item.content || item.text || '');
+                            return (
+                                <li key={i} className="pl-2 leading-relaxed" dangerouslySetInnerHTML={{ __html: content }} />
+                            );
+                        })}
                     </ListTag>
                 );
 
