@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Send, Upload, CheckCircle2, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
 
 type SubmissionType = 'material' | 'teacher' | 'tool';
 
@@ -10,18 +11,19 @@ export default function SubmitPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
 
+    const [checkId, setCheckId] = useState<string | null>(null);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
 
-        // Get form data from e.target
         const formData = new FormData(e.target as HTMLFormElement);
         const data = {
             type,
             title: formData.get('title'),
             author: formData.get('name'),
             content: formData.get('desc'),
-            fileUrl: '', // For now empty, can be implemented with storage later
+            fileUrl: '',
         };
 
         try {
@@ -32,6 +34,8 @@ export default function SubmitPage() {
             });
 
             if (res.ok) {
+                const result = await res.json();
+                setCheckId(result.checkId);
                 setIsSuccess(true);
             } else {
                 alert('Ошибка при отправке. Попробуй позже.');
@@ -51,15 +55,25 @@ export default function SubmitPage() {
                     <CheckCircle2 size={64} />
                 </div>
                 <h1 className="text-3xl font-black">Заявка отправлена!</h1>
+                <div className="p-6 bg-secondary rounded-2xl border border-border space-y-2">
+                    <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Твой номер заявки:</p>
+                    <p className="text-2xl font-black text-primary select-all">{checkId}</p>
+                    <p className="text-[10px] text-muted-foreground">Сохрани его, чтобы проверять статус</p>
+                </div>
                 <p className="text-muted-foreground italic">
                     Твое предложение улетело админу на проверку. Если всё ок, скоро оно появится в системе. Респектуем за вклад!
                 </p>
-                <button
-                    onClick={() => setIsSuccess(false)}
-                    className="bg-primary text-primary-foreground px-8 py-3 rounded-xl font-bold hover:scale-105 transition-transform"
-                >
-                    Отправить еще что-нибудь
-                </button>
+                <div className="flex flex-col gap-3">
+                    <button
+                        onClick={() => setIsSuccess(false)}
+                        className="bg-primary text-primary-foreground px-8 py-3 rounded-xl font-bold hover:scale-105 transition-transform"
+                    >
+                        Отправить еще что-нибудь
+                    </button>
+                    <Link href="/check-status" className="text-sm font-bold text-muted-foreground hover:text-primary transition-colors">
+                        Проверить статус
+                    </Link>
+                </div>
             </div>
         );
     }

@@ -9,6 +9,7 @@ datasource db {
 
 model Submission {
   id        Int      @id @default(autoincrement())
+  checkId   String?  @unique @default(uuid())
   type      String   // material, teacher, tool
   title     String
   author    String?

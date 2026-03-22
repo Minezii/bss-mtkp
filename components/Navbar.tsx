@@ -10,6 +10,7 @@ const navItems = [
     { name: 'Студентам', href: '/', icon: BookOpen },
     { name: 'Преподаватели', href: '/teachers', icon: Users },
     { name: 'Инструменты', href: '/tools', icon: Wrench },
+    { name: 'Статус заявки', href: '/check-status', icon: Rocket },
 ];
 
 export default function Navbar() {

@@ -22,7 +22,7 @@ export async function POST(request: Request) {
             },
         });
 
-        return NextResponse.json({ success: true, submission });
+        return NextResponse.json({ success: true, checkId: submission.checkId });
     } catch (error: any) {
         console.error('Submission error:', error);
         return NextResponse.json({
