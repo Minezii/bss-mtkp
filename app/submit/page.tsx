@@ -143,6 +143,20 @@ export default function SubmitPage() {
                         </div>
                     )}
 
+                    {type === 'tool' && (
+                        <div className="space-y-2 animate-in slide-in-from-left duration-300">
+                            <label htmlFor="link" className="text-sm font-bold ml-1">Ссылка на проект</label>
+                            <input
+                                id="link"
+                                name="link"
+                                required
+                                type="url"
+                                placeholder="https://example.com"
+                                className="w-full bg-secondary border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary outline-none text-foreground"
+                            />
+                        </div>
+                    )}
+
                     <div className="space-y-2">
                         <label htmlFor="desc" className="text-sm font-bold ml-1">Описание / Ссылка / Текст отзыва</label>
                         <textarea
