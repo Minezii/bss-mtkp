@@ -72,8 +72,11 @@ export default function ReviewModal({ teacherId, teacherName, isOpen, onClose, o
     );
 
     return (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="relative w-full max-w-xl bg-card border border-border rounded-3xl p-8 shadow-2xl animate-in zoom-in-95 duration-200">
+        <div
+            className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200"
+            style={{ WebkitBackdropFilter: 'blur(8px)' }}
+        >
+            <div className="relative w-full max-w-xl bg-card border border-border rounded-3xl p-6 md:p-8 shadow-2xl animate-in zoom-in-95 duration-200 overflow-y-auto max-h-[90vh] no-scrollbar">
                 <button
                     onClick={onClose}
                     className="absolute top-4 right-4 p-2 hover:bg-secondary rounded-full transition-colors"
@@ -81,11 +84,11 @@ export default function ReviewModal({ teacherId, teacherName, isOpen, onClose, o
                     <X size={20} />
                 </button>
 
-                <h2 className="text-2xl font-bold mb-2">Оставить отзыв</h2>
-                <p className="text-muted-foreground mb-8">Преподаватель: <span className="text-foreground font-bold">{teacherName}</span></p>
+                <h2 className="text-xl md:text-2xl font-bold mb-2">Оставить отзыв</h2>
+                <p className="text-muted-foreground text-sm md:text-base mb-6 md:mb-8">Преподаватель: <span className="text-foreground font-bold">{teacherName}</span></p>
 
-                <form onSubmit={handleSubmit} className="space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                         <RatingField
                             label="Душка на парах"
                             value={ratings.lectures}

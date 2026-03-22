@@ -67,8 +67,11 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="relative w-full max-w-md bg-card border border-border rounded-3xl p-8 shadow-2xl animate-in zoom-in-95 duration-200">
+        <div
+            className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200"
+            style={{ WebkitBackdropFilter: 'blur(8px)' }}
+        >
+            <div className="relative w-full max-w-md bg-card border border-border rounded-3xl p-6 md:p-8 shadow-2xl animate-in zoom-in-95 duration-200">
                 <button
                     onClick={onClose}
                     className="absolute top-4 right-4 p-2 hover:bg-secondary rounded-full transition-colors"

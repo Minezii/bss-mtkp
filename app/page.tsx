@@ -7,7 +7,8 @@ import {
   FileText,
   Download,
   RefreshCcw,
-  GraduationCap
+  GraduationCap,
+  Send
 } from 'lucide-react';
 
 interface Material {
@@ -74,6 +75,15 @@ export default function Home() {
             >
               Предложить свой
             </button>
+            <a
+              href="https://t.me/BssMtkp"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto bg-primary-foreground/10 border-2 border-primary-foreground/20 text-primary-foreground px-8 py-4 rounded-2xl font-bold hover:bg-primary-foreground/20 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
+            >
+              <Send size={20} />
+              Наш Telegram
+            </a>
           </div>
         </div>
         <div className="absolute right-[-10%] bottom-[-10%] md:bottom-[-20%] opacity-10 pointer-events-none">
@@ -88,8 +98,8 @@ export default function Home() {
             <button
               onClick={() => setSelectedCourse('all')}
               className={`px-5 py-2.5 rounded-full whitespace-nowrap text-sm font-bold transition-all ${selectedCourse === 'all'
-                  ? 'bg-primary text-primary-foreground shadow-md scale-105'
-                  : 'bg-secondary text-secondary-foreground hover:bg-muted active:scale-95'
+                ? 'bg-primary text-primary-foreground shadow-md scale-105'
+                : 'bg-secondary text-secondary-foreground hover:bg-muted active:scale-95'
                 }`}
             >
               Все курсы
@@ -99,8 +109,8 @@ export default function Home() {
                 key={course}
                 onClick={() => setSelectedCourse(course)}
                 className={`px-5 py-2.5 rounded-full whitespace-nowrap text-sm font-bold transition-all ${selectedCourse === course
-                    ? 'bg-primary text-primary-foreground shadow-md scale-105'
-                    : 'bg-secondary text-secondary-foreground hover:bg-muted active:scale-95'
+                  ? 'bg-primary text-primary-foreground shadow-md scale-105'
+                  : 'bg-secondary text-secondary-foreground hover:bg-muted active:scale-95'
                   }`}
               >
                 {course} курс
