@@ -150,11 +150,20 @@ export default function SummaryPage() {
                         <SummaryRenderer blocks={summary.message?.blocks || []} />
 
                         {/* Footer / Outro */}
-                        <div className="mt-20 pt-10 border-t border-border text-center">
-                            <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest mb-6">Конец конспекта</p>
+                        <div className="mt-20 pt-10 border-t border-border flex flex-col items-center gap-6">
+                            <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">Конец конспекта</p>
+
+                            <div className="flex flex-col items-center gap-2">
+                                <span className="text-xs text-muted-foreground font-medium uppercase tracking-tighter">Материал подготовлен</span>
+                                <div className="px-4 py-2 bg-primary/10 rounded-xl border border-primary/20 flex items-center gap-2">
+                                    <Sparkles size={16} className="text-primary" />
+                                    <span className="font-black italic text-primary">IRMIS AI</span>
+                                </div>
+                            </div>
+
                             <button
                                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                                className="inline-flex items-center gap-2 text-primary font-bold hover:underline"
+                                className="inline-flex items-center gap-2 text-primary font-bold hover:underline mt-4"
                             >
                                 Вернуться к началу
                             </button>
