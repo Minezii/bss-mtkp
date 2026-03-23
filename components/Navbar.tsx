@@ -3,15 +3,19 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BookOpen, Users, Wrench, Menu, X, Rocket, Moon, Sun, User, LogOut, GraduationCap, HelpCircle } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTheme } from 'next-themes';
 import AuthModal from './AuthModal';
+import { ChevronDown } from 'lucide-react';
 
-const navItems = [
+const mainNavItems = [
     { name: 'Материалы', href: '/', icon: GraduationCap },
-    { name: 'Ирмис', href: '/summaries', icon: BookOpen },
     { name: 'Преподаватели', href: '/teachers', icon: Users },
+    { name: 'Ирмис', href: '/summaries', icon: BookOpen },
     { name: 'Инструменты', href: '/tools', icon: Wrench },
+];
+
+const moreNavItems = [
     { name: 'Вопросы', href: '/faq', icon: HelpCircle },
     { name: 'Статус', href: '/check-status', icon: Rocket },
 ];
@@ -19,26 +23,25 @@ const navItems = [
 export default function Navbar() {
     const pathname = usePathname();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isMoreOpen, setIsMoreOpen] = useState(false);
+    const moreRef = useRef<HTMLDivElement>(null);
     const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
     const [user, setUser] = useState<any>(null);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-    // Fetch user on mount
-    const checkAuth = async () => {
-        try {
-            const res = await fetch('/api/auth/login', { method: 'GET' }); // I need to add a GET handler to login or separate /me
-            // For now, let's just use a simple flag in localStorage or similar for UI responsiveness, 
-            // but the real check should be API-based.
-            // I'll create /api/auth/me instead.
-        } catch (err) { }
-    };
-
     useEffect(() => {
         setMounted(true);
-        // Simple check for presence of cookie by calling a dummy endpoint or just checking localStorage
         const savedUser = localStorage.getItem('bss_user');
         if (savedUser) setUser(JSON.parse(savedUser));
+
+        const handleClickOutside = (event: MouseEvent) => {
+            if (moreRef.current && !moreRef.current.contains(event.target as Node)) {
+                setIsMoreOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
     const toggleTheme = () => {
@@ -63,72 +66,110 @@ export default function Navbar() {
             <nav className="sticky top-0 z-50 glass border-b border-border">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16 items-center">
-                        <div className="flex items-center">
-                            <Link href="/" className="flex items-center gap-2 group">
+                        <div className="flex items-center gap-8">
+                            <Link href="/" className="flex items-center gap-2 group shrink-0">
                                 <div className="bg-primary text-primary-foreground p-1.5 rounded-lg group-hover:scale-110 transition-all duration-200">
                                     <Rocket size={20} />
                                 </div>
                                 <span className="text-xl font-bold tracking-tight transition-colors duration-200">БСС МТКП</span>
                             </Link>
-                        </div>
 
-                        {/* Desktop Nav */}
-                        <div className="hidden md:flex items-center space-x-4">
-                            {navItems.map((item) => {
-                                const Icon = item.icon;
-                                const isActive = pathname === item.href;
-                                return (
-                                    <Link
-                                        key={item.href}
-                                        href={item.href}
-                                        className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${isActive
-                                            ? 'bg-primary text-primary-foreground shadow-sm'
-                                            : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                            {/* Main Desktop Nav */}
+                            <div className="hidden xl:flex items-center space-x-1">
+                                {mainNavItems.map((item) => {
+                                    const Icon = item.icon;
+                                    const isActive = pathname === item.href;
+                                    return (
+                                        <Link
+                                            key={item.href}
+                                            href={item.href}
+                                            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${isActive
+                                                ? 'bg-primary text-primary-foreground shadow-lg scale-[1.02]'
+                                                : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                                                }`}
+                                        >
+                                            <Icon size={18} />
+                                            {item.name}
+                                        </Link>
+                                    );
+                                })}
+
+                                {/* More Dropdown */}
+                                <div className="relative" ref={moreRef}>
+                                    <button
+                                        onClick={() => setIsMoreOpen(!isMoreOpen)}
+                                        className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${isMoreOpen || moreNavItems.some(i => i.href === pathname)
+                                            ? 'bg-secondary text-foreground'
+                                            : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
                                             }`}
                                     >
-                                        <Icon size={18} />
-                                        {item.name}
-                                    </Link>
-                                );
-                            })}
+                                        Еще
+                                        <ChevronDown size={14} className={`transition-transform duration-200 ${isMoreOpen ? 'rotate-180' : ''}`} />
+                                    </button>
 
-                            <div className="h-6 w-px bg-border mx-2" />
+                                    {isMoreOpen && (
+                                        <div className="absolute top-full left-0 mt-2 w-48 bg-card border border-border rounded-2xl shadow-2xl p-2 animate-in fade-in zoom-in-95 duration-200">
+                                            {moreNavItems.map((item) => {
+                                                const Icon = item.icon;
+                                                const isActive = pathname === item.href;
+                                                return (
+                                                    <Link
+                                                        key={item.href}
+                                                        href={item.href}
+                                                        onClick={() => setIsMoreOpen(false)}
+                                                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all ${isActive
+                                                            ? 'bg-primary/10 text-primary'
+                                                            : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                                                            }`}
+                                                    >
+                                                        <Icon size={18} />
+                                                        {item.name}
+                                                    </Link>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
 
+                        {/* Right Actions */}
+                        <div className="hidden md:flex items-center space-x-4">
                             {user ? (
-                                <div className="flex items-center gap-3">
-                                    <Link href="/profile" className="flex items-center gap-2 px-3 py-1.5 bg-secondary hover:bg-muted transition-colors rounded-full text-sm font-bold">
+                                <div className="flex items-center gap-2 pr-2 border-r border-border">
+                                    <Link href="/profile" className="flex items-center gap-2 px-3 py-1.5 bg-secondary hover:bg-muted transition-colors rounded-full text-sm font-bold border border-transparent hover:border-border">
                                         <User size={16} className="text-primary" />
                                         {user.username}
                                     </Link>
                                     <button
                                         onClick={handleLogout}
-                                        className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+                                        className="p-2 text-muted-foreground hover:text-destructive transition-colors bg-secondary/30 rounded-full hover:bg-destructive/10"
                                         title="Выйти"
                                     >
-                                        <LogOut size={20} />
+                                        <LogOut size={18} />
                                     </button>
                                 </div>
                             ) : (
                                 <button
                                     onClick={() => setIsAuthModalOpen(true)}
-                                    className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-full text-sm font-bold hover:opacity-90 transition-all active:scale-95"
+                                    className="flex items-center gap-2 px-6 py-2 bg-primary text-primary-foreground rounded-full text-sm font-black hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-primary/20"
                                 >
                                     Войти
                                 </button>
                             )}
 
-                            <div className="hidden lg:block h-6 w-px bg-border mx-2" />
-                            <div className="hidden lg:block text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-50">
-                                v1.0.0
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={toggleTheme}
+                                    className="p-2.5 rounded-xl bg-secondary/50 text-muted-foreground hover:bg-secondary hover:text-foreground transition-all active:scale-90"
+                                    aria-label="Переключить тему"
+                                >
+                                    {mounted && (theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />)}
+                                </button>
+                                <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-30 select-none">
+                                    v1.0.0
+                                </div>
                             </div>
-
-                            <button
-                                onClick={toggleTheme}
-                                className="p-2 ml-2 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-                                aria-label="Переключить тему"
-                            >
-                                {mounted && (theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />)}
-                            </button>
                         </div>
 
                         {/* Mobile Menu Button */}
@@ -193,7 +234,7 @@ export default function Navbar() {
                         </div>
 
                         <div className="space-y-4 flex-grow">
-                            {navItems.map((item) => {
+                            {[...mainNavItems, ...moreNavItems].map((item) => {
                                 const Icon = item.icon;
                                 const isActive = pathname === item.href;
                                 return (
