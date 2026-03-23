@@ -12,6 +12,7 @@ export async function GET(request: Request) {
             orderBy: { createdAt: 'desc' },
         });
 
+        console.log(`[API] Found ${materials.length} materials`);
         return NextResponse.json(materials);
     } catch (error: any) {
         console.error('Fetch materials error:', error);

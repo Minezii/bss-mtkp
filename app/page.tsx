@@ -28,21 +28,34 @@ export default function Home() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [materialsRes, summariesRes] = await Promise.all([
-        fetch(`/api/materials?course=${selectedCourse}`),
-        fetch('/api/summaries/sync')
-      ]);
+      // Fetch separately to avoid cross-failure in Promise.all
+      const materialsFetch = fetch(`/api/materials?course=${selectedCourse}`);
+      const summariesFetch = fetch('/api/summaries/sync');
 
-      if (materialsRes.ok) {
-        const data = await materialsRes.json();
-        setMaterials(data);
-      }
-      if (summariesRes.ok) {
-        const data = await summariesRes.json();
-        setAiSummaries(data);
-      }
+      materialsFetch.then(async (res) => {
+        if (res.ok) {
+          const data = await res.json();
+          console.log('[Home] Materials fetched:', data.length);
+          setMaterials(data);
+        } else {
+          console.error('[Home] Materials fetch failed:', res.status);
+        }
+      }).catch(err => console.error('[Home] Materials fetch error:', err));
+
+      summariesFetch.then(async (res) => {
+        if (res.ok) {
+          const data = await res.json();
+          console.log('[Home] AI Summaries fetched:', data.length);
+          setAiSummaries(data);
+        } else {
+          console.error('[Home] AI Summaries fetch failed:', res.status);
+        }
+      }).catch(err => console.error('[Home] AI Summaries fetch error:', err));
+
+      // Wait for both just for the loading state if needed, but allow partial success
+      await Promise.allSettled([materialsFetch, summariesFetch]);
     } catch (err) {
-      console.error(err);
+      console.error('[Home] Global fetch error:', err);
     } finally {
       setLoading(false);
     }

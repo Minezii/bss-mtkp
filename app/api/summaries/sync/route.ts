@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
 
 export async function POST(req: Request) {
+    const prisma = (await import('@/lib/prisma')).default;
     try {
         const body = await req.json();
         const { summaries } = body;
@@ -41,10 +41,12 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
+    const prisma = (await import('@/lib/prisma')).default;
     try {
         const summaries = await prisma.aISummary.findMany({
             orderBy: { createdAt: 'desc' }
         });
+        console.log(`[API] Found ${summaries.length} AI summaries`);
         return NextResponse.json(summaries);
     } catch (err: any) {
         return NextResponse.json({ error: err.message }, { status: 500 });
