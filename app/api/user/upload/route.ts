@@ -36,9 +36,10 @@ export async function POST(request: Request) {
 
         console.log('Attempting upload to Vercel Blob:', filename);
 
-        // Upload to Vercel Blob
+        // Upload to Vercel Blob with explicit token
         const blob = await put(filename, file, {
             access: 'public',
+            token: process.env.BLOB_READ_WRITE_TOKEN,
         });
 
         console.log('Upload successful:', blob.url);
