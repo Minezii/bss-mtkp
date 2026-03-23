@@ -166,88 +166,90 @@ export default function Home() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Regular Materials */}
-            {filteredMaterials.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => {
-                  if (item.fileUrl) {
-                    if (item.fileUrl.includes('/summary/')) {
-                      const uuid = item.fileUrl.split('/summary/')[1]?.split('?')[0];
-                      if (uuid) {
-                        router.push(`/summary/${uuid}`);
+            {/* Unified Combined List */}
+            {[...filteredMaterials.map(m => ({ ...m, displayType: 'material' as const })),
+            ...filteredSummaries.map(s => ({ ...s, displayType: 'ai' as const }))]
+              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+              .map((item: any) => (
+                item.displayType === 'material' ? (
+                  <div
+                    key={`material-${item.id}`}
+                    onClick={() => {
+                      if (item.fileUrl) {
+                        if (item.fileUrl.includes('/summary/')) {
+                          const uuid = item.fileUrl.split('/summary/')[1]?.split('?')[0];
+                          if (uuid) {
+                            router.push(`/summary/${uuid}`);
+                          } else {
+                            window.open(item.fileUrl, '_blank');
+                          }
+                        } else {
+                          window.open(item.fileUrl, '_blank');
+                        }
+                      } else if (item.content) {
+                        router.push(`/material/${item.id}`);
                       } else {
-                        window.open(item.fileUrl, '_blank');
+                        alert('Файл еще не загружен или ссылка отсутствует.');
                       }
-                    } else {
-                      window.open(item.fileUrl, '_blank');
-                    }
-                  } else if (item.content) {
-                    router.push(`/material/${item.id}`);
-                  } else {
-                    alert('Файл еще не загружен или ссылка отсутствует.');
-                  }
-                }}
-                className="group bg-card border border-border rounded-2xl p-6 hover:shadow-xl hover:border-primary/20 transition-all cursor-pointer"
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <div className="p-3 bg-secondary rounded-xl text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    <FileText size={24} />
+                    }}
+                    className="group bg-card border border-border rounded-2xl p-6 hover:shadow-xl hover:border-primary/20 transition-all cursor-pointer"
+                  >
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="p-3 bg-secondary rounded-xl text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                        <FileText size={24} />
+                      </div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground bg-muted px-2 py-1 rounded">
+                        {item.category}
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-bold mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                      {item.title}
+                    </h3>
+                    <p className="text-muted-foreground text-sm mb-6">
+                      Предмет: <span className="text-foreground font-medium">{item.subject}</span>
+                    </p>
+                    <div className="flex justify-between items-center pt-4 border-t border-border">
+                      <span className="text-sm font-semibold flex items-center gap-1 text-muted-foreground">
+                        <Download size={16} />
+                        {item.downloads}
+                      </span>
+                      <span className="text-xs font-bold px-2 py-1 bg-primary/10 text-primary rounded-md">
+                        {item.course} курс
+                      </span>
+                    </div>
                   </div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground bg-muted px-2 py-1 rounded">
-                    {item.category}
-                  </span>
-                </div>
-                <h3 className="text-xl font-bold mb-2 line-clamp-2 group-hover:text-primary transition-colors">
-                  {item.title}
-                </h3>
-                <p className="text-muted-foreground text-sm mb-6">
-                  Предмет: <span className="text-foreground font-medium">{item.subject}</span>
-                </p>
-                <div className="flex justify-between items-center pt-4 border-t border-border">
-                  <span className="text-sm font-semibold flex items-center gap-1 text-muted-foreground">
-                    <Download size={16} />
-                    {item.downloads}
-                  </span>
-                  <span className="text-xs font-bold px-2 py-1 bg-primary/10 text-primary rounded-md">
-                    {item.course} курс
-                  </span>
-                </div>
-              </div>
-            ))}
-
-            {/* AI Summaries */}
-            {filteredSummaries.map((s) => (
-              <div
-                key={s.id}
-                onClick={() => router.push(`/summary/${s.uuid}`)}
-                className="group bg-[#5865F2]/5 border border-[#5865F2]/10 rounded-2xl p-6 hover:shadow-xl hover:border-[#5865F2]/30 transition-all cursor-pointer relative overflow-hidden"
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <div className="p-3 bg-[#5865F2] text-white rounded-xl shadow-lg shadow-[#5865F2]/20">
-                    <Zap size={24} />
+                ) : (
+                  <div
+                    key={`ai-${item.id}`}
+                    onClick={() => router.push(`/summary/${item.uuid}`)}
+                    className="group bg-[#5865F2]/5 border border-[#5865F2]/10 rounded-2xl p-6 hover:shadow-xl hover:border-[#5865F2]/30 transition-all cursor-pointer relative overflow-hidden"
+                  >
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="p-3 bg-[#5865F2] text-white rounded-xl shadow-lg shadow-[#5865F2]/20">
+                        <Zap size={24} />
+                      </div>
+                      <span className="text-[10px] font-black uppercase tracking-[0.1em] text-[#5865F2] bg-[#5865F2]/10 px-3 py-1.5 rounded-full border border-[#5865F2]/20">
+                        MADE BY ИРМИС
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-bold mb-2 line-clamp-2 group-hover:text-[#5865F2] transition-colors pr-4">
+                      {item.title}
+                    </h3>
+                    <p className="text-muted-foreground text-sm mb-6">
+                      Предмет: <span className="text-foreground font-medium">{item.subject || 'Общий'}</span>
+                    </p>
+                    <div className="flex justify-between items-center pt-4 border-t border-[#5865F2]/10">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground">
+                        <Clock size={14} />
+                        {new Date(item.createdAt).toLocaleDateString()}
+                      </div>
+                      <span className="text-xs font-bold px-2 py-1 bg-[#5865F2]/10 text-[#5865F2] rounded-md">
+                        {item.course} курс
+                      </span>
+                    </div>
                   </div>
-                  <span className="text-[10px] font-black uppercase tracking-[0.1em] text-[#5865F2] bg-[#5865F2]/10 px-3 py-1.5 rounded-full border border-[#5865F2]/20">
-                    MADE BY ИРМИС
-                  </span>
-                </div>
-                <h3 className="text-xl font-bold mb-2 line-clamp-2 group-hover:text-[#5865F2] transition-colors pr-4">
-                  {s.title}
-                </h3>
-                <p className="text-muted-foreground text-sm mb-6">
-                  Предмет: <span className="text-foreground font-medium">{s.subject || 'Общий'}</span>
-                </p>
-                <div className="flex justify-between items-center pt-4 border-t border-[#5865F2]/10">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground">
-                    <Clock size={14} />
-                    {new Date(s.createdAt).toLocaleDateString()}
-                  </div>
-                  <span className="text-xs font-bold px-2 py-1 bg-[#5865F2]/10 text-[#5865F2] rounded-md">
-                    {s.course} курс
-                  </span>
-                </div>
-              </div>
-            ))}
+                )
+              ))}
           </div>
         )}
 
