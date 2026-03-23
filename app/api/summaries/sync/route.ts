@@ -46,7 +46,6 @@ export async function GET() {
         const summaries = await prisma.aISummary.findMany({
             orderBy: { createdAt: 'desc' }
         });
-        console.log(`[API] Found ${summaries.length} AI summaries`);
         return NextResponse.json(summaries);
     } catch (err: any) {
         return NextResponse.json({ error: err.message }, { status: 500 });

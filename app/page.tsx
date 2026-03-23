@@ -35,22 +35,16 @@ export default function Home() {
       materialsFetch.then(async (res) => {
         if (res.ok) {
           const data = await res.json();
-          console.log('[Home] Materials fetched:', data.length);
           setMaterials(data);
-        } else {
-          console.error('[Home] Materials fetch failed:', res.status);
         }
-      }).catch(err => console.error('[Home] Materials fetch error:', err));
+      }).catch(err => console.error(err));
 
       summariesFetch.then(async (res) => {
         if (res.ok) {
           const data = await res.json();
-          console.log('[Home] AI Summaries fetched:', data.length);
           setAiSummaries(data);
-        } else {
-          console.error('[Home] AI Summaries fetch failed:', res.status);
         }
-      }).catch(err => console.error('[Home] AI Summaries fetch error:', err));
+      }).catch(err => console.error(err));
 
       // Wait for both just for the loading state if needed, but allow partial success
       await Promise.allSettled([materialsFetch, summariesFetch]);
