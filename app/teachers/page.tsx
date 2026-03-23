@@ -137,8 +137,8 @@ export default function TeachersPage() {
                                     </div>
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 pt-4 border-t border-border/50">
-                                        <RatingBar label="Душка на парах" value={teacher.lecturesRating} />
-                                        <RatingBar label="Душка на сессии" value={teacher.examsRating} />
+                                        <RatingBar label="Строгость на парах" value={teacher.lecturesRating} />
+                                        <RatingBar label="Строгость на сессии" value={teacher.examsRating} />
                                         <RatingBar label="Понятность" value={teacher.clarityRating} />
                                         <RatingBar label="Справедливость" value={teacher.fairnessRating} />
                                     </div>

@@ -127,12 +127,12 @@ export default function ReviewModal({ teacherId, teacherName, isOpen, onClose, o
                 <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                         <RatingField
-                            label="Душка на парах"
+                            label="Строгость на парах"
                             value={ratings.lectures}
                             onChange={(v) => setRatings({ ...ratings, lectures: v })}
                         />
                         <RatingField
-                            label="Душка на сессии"
+                            label="Строгость на сессии"
                             value={ratings.exams}
                             onChange={(v) => setRatings({ ...ratings, exams: v })}
                         />
