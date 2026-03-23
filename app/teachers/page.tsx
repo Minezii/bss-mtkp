@@ -172,8 +172,9 @@ export default function TeachersPage() {
                             </div>
 
                             {teacher.overallRating >= 4.5 && (
-                                <div className="absolute top-0 right-0 p-4">
-                                    <div className="bg-yellow-400 text-yellow-950 px-4 py-1 rounded-bl-2xl font-bold text-xs uppercase tracking-widest shadow-lg">
+                                <div className="absolute top-0 right-0">
+                                    <div className="bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500 text-amber-950 px-5 py-2 rounded-bl-[2rem] font-black text-[10px] uppercase tracking-widest shadow-xl flex items-center gap-1.5 border-l border-b border-white/20">
+                                        <Star size={12} fill="currentColor" />
                                         ТОП
                                     </div>
                                 </div>
