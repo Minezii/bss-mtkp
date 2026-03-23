@@ -4,7 +4,8 @@ import { hashPassword } from '@/lib/auth';
 
 export async function POST(request: Request) {
     try {
-        const { username, password } = await request.json();
+        const { username: rawUsername, password } = await request.json();
+        const username = rawUsername?.toLowerCase().trim();
 
         if (!username || !password) {
             return NextResponse.json({ error: 'Username and password required' }, { status: 400 });
