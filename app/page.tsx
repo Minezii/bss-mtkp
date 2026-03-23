@@ -84,7 +84,7 @@ export default function Home() {
           </h1>
           <p className="text-base md:text-xl text-primary-foreground/80 mb-8 leading-relaxed">
             База конспектов, лекций и учебных материалов для студентов МТКП.
-            Скачивай, делись и учись эффективнее.
+            Делись и учись эффективнее.
           </p>
           <div className="flex flex-wrap gap-4">
             <button
@@ -192,28 +192,28 @@ export default function Home() {
                         alert('Файл еще не загружен или ссылка отсутствует.');
                       }
                     }}
-                    className="group bg-card border border-border rounded-2xl p-6 hover:shadow-xl hover:border-primary/20 transition-all cursor-pointer"
+                    className="group bg-[#5865F2]/5 border border-[#5865F2]/10 rounded-2xl p-6 hover:shadow-xl hover:border-[#5865F2]/30 transition-all cursor-pointer relative overflow-hidden"
                   >
                     <div className="flex justify-between items-start mb-4">
-                      <div className="p-3 bg-secondary rounded-xl text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                      <div className="p-3 bg-[#5865F2] text-white rounded-xl shadow-lg shadow-[#5865F2]/20">
                         <FileText size={24} />
                       </div>
-                      <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground bg-muted px-2 py-1 rounded">
-                        {item.category}
+                      <span className="text-[10px] font-black uppercase tracking-[0.1em] text-[#5865F2] bg-[#5865F2]/10 px-3 py-1.5 rounded-full border border-[#5865F2]/20">
+                        КОНСПЕКТ
                       </span>
                     </div>
-                    <h3 className="text-xl font-bold mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                    <h3 className="text-xl font-bold mb-2 line-clamp-2 group-hover:text-[#5865F2] transition-colors pr-4">
                       {item.title}
                     </h3>
                     <p className="text-muted-foreground text-sm mb-6">
                       Предмет: <span className="text-foreground font-medium">{item.subject}</span>
                     </p>
-                    <div className="flex justify-between items-center pt-4 border-t border-border">
-                      <span className="text-sm font-semibold flex items-center gap-1 text-muted-foreground">
-                        <Download size={16} />
+                    <div className="flex justify-between items-center pt-4 border-t border-[#5865F2]/10">
+                      <span className="text-xs font-bold flex items-center gap-1.5 text-muted-foreground">
+                        <Download size={14} />
                         {item.downloads}
                       </span>
-                      <span className="text-xs font-bold px-2 py-1 bg-primary/10 text-primary rounded-md">
+                      <span className="text-xs font-bold px-2 py-1 bg-[#5865F2]/10 text-[#5865F2] rounded-md">
                         {item.course} курс
                       </span>
                     </div>
