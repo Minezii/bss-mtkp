@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { User, Camera, Image as ImageIcon, Save, Lock, ArrowLeft, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { User, Camera, Image as ImageIcon, Save, Lock, ArrowLeft, Loader2, CheckCircle2, AlertCircle, X } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ProfilePage() {
@@ -160,10 +160,10 @@ export default function ProfilePage() {
             </div>
 
             {/* Profile Header (Banner & Avatar) */}
-            <section className="relative group">
+            <section className="relative">
                 {/* Banner */}
                 <div
-                    className="h-48 md:h-64 w-full rounded-[2.5rem] bg-secondary relative overflow-hidden cursor-pointer border-4 border-transparent hover:border-primary/20 transition-all"
+                    className="h-48 md:h-64 w-full rounded-[2.5rem] bg-secondary relative overflow-hidden cursor-pointer border-4 border-transparent hover:border-primary/20 transition-all group/banner"
                     onClick={() => bannerInputRef.current?.click()}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={(e) => {
@@ -173,14 +173,26 @@ export default function ProfilePage() {
                     }}
                 >
                     {bannerPreview ? (
-                        <img src={bannerPreview} alt="Banner" className="w-full h-full object-cover" />
+                        <div className="relative w-full h-full">
+                            <img src={bannerPreview} alt="Banner" className="w-full h-full object-cover" />
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setBannerPreview(null);
+                                }}
+                                className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/80 text-white rounded-full transition-colors z-20"
+                                title="Удалить баннер"
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
                     ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground opacity-40 group-hover:opacity-100 transition-opacity">
+                        <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground opacity-40 group-hover/banner:opacity-100 transition-opacity">
                             <ImageIcon size={48} />
                             <p className="font-bold text-sm mt-2 uppercase tracking-widest">Перетащите баннер сюда</p>
                         </div>
                     )}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-bold">
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/banner:opacity-100 transition-opacity flex items-center justify-center text-white font-bold">
                         <ImageIcon className="mr-2" /> Сменить баннер
                     </div>
                 </div>
@@ -209,7 +221,19 @@ export default function ProfilePage() {
                         }}
                     >
                         {avatarPreview ? (
-                            <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                            <div className="relative w-full h-full">
+                                <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setAvatarPreview(null);
+                                    }}
+                                    className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-black/80 text-white rounded-full transition-colors z-20"
+                                    title="Удалить фото"
+                                >
+                                    <X size={14} />
+                                </button>
+                            </div>
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                                 <User size={64} />
