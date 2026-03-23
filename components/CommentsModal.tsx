@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { X, MessageSquare, ThumbsUp, ThumbsDown, User, Calendar } from 'lucide-react';
+import Link from 'next/link';
 import StarRating from './StarRating';
 
 interface CommentsModalProps {
@@ -78,10 +79,10 @@ export default function CommentsModal({ teacherId, teacherName, isOpen, onClose 
                                                 <User size={18} className="md:w-5 md:h-5" />
                                             )}
                                         </div>
-                                        <div className="min-w-0">
-                                            <p className="font-bold text-xs md:text-sm truncate">{review.user.username}</p>
+                                        <Link href={`/profile/${review.user.username}`} className="min-w-0 group/u">
+                                            <p className="font-bold text-xs md:text-sm truncate group-hover/u:text-primary transition-colors">{review.user.username}</p>
                                             <p className="text-[9px] md:text-[10px] text-muted-foreground font-bold uppercase tracking-wider truncate">{review.user.group || 'Студент'}</p>
-                                        </div>
+                                        </Link>
                                     </div>
                                     <div className="flex flex-col items-end gap-1 flex-shrink-0">
                                         <StarRating rating={review.rating} size={12} />

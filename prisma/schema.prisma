@@ -60,9 +60,34 @@ model User {
   group        String?  // New field for groups like "ТИП 11"
   avatarUrl    String?  // New field
   bannerUrl    String?  // New field
+  quote        String?
+  likes        ProfileLike[] @relation("ProfileLikes")
+  likedProfiles ProfileLike[] @relation("UserLikes")
+  views        ProfileView[] @relation("ProfileViews")
+  viewedProfiles ProfileView[] @relation("UserViews")
   reviews      Review[]
   submissions  Submission[]
   createdAt    DateTime @default(now())
+}
+
+model ProfileLike {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  profileId Int
+  user      User     @relation("UserLikes", fields: [userId], references: [id])
+  profile   User     @relation("ProfileLikes", fields: [profileId], references: [id])
+  createdAt DateTime @default(now())
+  @@unique([userId, profileId])
+}
+
+model ProfileView {
+  id        Int      @id @default(autoincrement())
+  viewerId  Int
+  profileId Int
+  viewer    User     @relation("UserViews", fields: [viewerId], references: [id])
+  profile   User     @relation("ProfileViews", fields: [profileId], references: [id])
+  createdAt DateTime @default(now())
+  @@unique([viewerId, profileId])
 }
 
 model Review {

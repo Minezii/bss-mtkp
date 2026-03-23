@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { User, Camera, Image as ImageIcon, Save, Lock, ArrowLeft, Loader2, CheckCircle2, AlertCircle, X } from 'lucide-react';
+import { User, Camera, Image as ImageIcon, Save, Lock, ArrowLeft, Loader2, CheckCircle2, AlertCircle, X, ExternalLink, Quote } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ProfilePage() {
@@ -17,6 +17,7 @@ export default function ProfilePage() {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [quote, setQuote] = useState('');
 
     // Previews
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -36,6 +37,7 @@ export default function ProfilePage() {
         setUsername(parsed.username);
         setAvatarPreview(parsed.avatarUrl || null);
         setBannerPreview(parsed.bannerUrl || null);
+        setQuote(parsed.quote || '');
 
         // Fetch fresh data to get avatar/banner urls if not in localstorage
         fetch('/api/auth/me')
@@ -47,6 +49,7 @@ export default function ProfilePage() {
                     setUsername(fullUser.username);
                     setAvatarPreview(fullUser.avatarUrl || null);
                     setBannerPreview(fullUser.bannerUrl || null);
+                    setQuote(fullUser.quote || '');
                 }
             })
             .finally(() => setLoading(false));
@@ -92,7 +95,8 @@ export default function ProfilePage() {
                 body: JSON.stringify({
                     username,
                     avatarUrl: avatarPreview,
-                    bannerUrl: bannerPreview
+                    bannerUrl: bannerPreview,
+                    quote
                 }),
             });
             const data = await res.json();
@@ -154,8 +158,17 @@ export default function ProfilePage() {
                     <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
                     <span className="font-bold">На главную</span>
                 </Link>
-                <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-50">
-                    Настройки аккаунта v1.0.0
+                <div className="flex items-center gap-4">
+                    <Link
+                        href={`/profile/${user?.username}`}
+                        className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-muted text-foreground rounded-xl text-xs font-bold transition-all active:scale-95 border border-border/50"
+                    >
+                        <ExternalLink size={14} />
+                        Посмотреть свой профиль
+                    </Link>
+                    <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-50">
+                        Настройки аккаунта v1.0.0
+                    </div>
                 </div>
             </div>
 
@@ -275,6 +288,19 @@ export default function ProfilePage() {
                                     className="w-full bg-secondary border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-primary outline-none font-bold"
                                     placeholder="Ваше имя..."
                                 />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">О себе (Цитата)</label>
+                                <div className="relative">
+                                    <Quote className="absolute left-6 top-6 text-muted-foreground opacity-30" size={24} />
+                                    <textarea
+                                        value={quote}
+                                        onChange={(e) => setQuote(e.target.value)}
+                                        className="w-full bg-secondary border-none rounded-3xl py-6 pl-16 pr-6 focus:ring-2 focus:ring-primary outline-none font-medium text-sm min-h-[120px] resize-none"
+                                        placeholder="Расскажите немного о себе или оставьте крутую цитату..."
+                                    />
+                                </div>
                             </div>
 
                             <button

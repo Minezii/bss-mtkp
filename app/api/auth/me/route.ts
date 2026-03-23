@@ -14,9 +14,10 @@ export async function GET() {
         select: {
             id: true,
             username: true,
+            group: true,
             avatarUrl: true,
             bannerUrl: true,
-            role: true,
+            quote: true,
         }
     });
 

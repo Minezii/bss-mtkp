@@ -9,14 +9,17 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { username, avatarUrl, bannerUrl } = await request.json();
+        const { username, avatarUrl, bannerUrl, quote } = await request.json();
+
+        console.log('Updating user:', currentUser.id, { username, quote });
 
         const updatedUser = await prisma.user.update({
             where: { id: currentUser.id },
             data: {
                 username: username || undefined,
-                avatarUrl: avatarUrl || undefined,
-                bannerUrl: bannerUrl || undefined,
+                avatarUrl: avatarUrl === null ? null : (avatarUrl || undefined),
+                bannerUrl: bannerUrl === null ? null : (bannerUrl || undefined),
+                quote: quote === null ? null : (quote || undefined),
             },
         });
 
@@ -26,7 +29,8 @@ export async function POST(request: Request) {
                 id: updatedUser.id,
                 username: updatedUser.username,
                 avatarUrl: updatedUser.avatarUrl,
-                bannerUrl: updatedUser.bannerUrl
+                bannerUrl: updatedUser.bannerUrl,
+                quote: updatedUser.quote
             }
         });
     } catch (error: any) {
