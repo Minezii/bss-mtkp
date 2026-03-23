@@ -10,14 +10,14 @@ import AuthModal from '@/components/AuthModal';
 
 
 const RatingBar = ({ label, value }: { label: string; value: number }) => (
-    <div className="space-y-1">
-        <div className="flex justify-between text-xs font-bold text-muted-foreground uppercase tracking-tight">
-            <span>{label}</span>
-            <span className="text-foreground">{value.toFixed(1)} / 5</span>
+    <div className="space-y-1.5">
+        <div className="flex justify-between items-end gap-x-4 text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-wider">
+            <span className="leading-tight shrink">{label}</span>
+            <span className="text-foreground whitespace-nowrap mb-[1px]">{value.toFixed(1)} / 5</span>
         </div>
-        <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
+        <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
             <div
-                className="h-full bg-primary rounded-full transition-all duration-500"
+                className="h-full bg-primary rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(var(--primary),0.3)]"
                 style={{ width: `${(value / 5) * 100}%` }}
             />
         </div>
