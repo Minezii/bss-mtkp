@@ -153,15 +153,15 @@ export default function ProfilePage() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-8 pb-20 animate-in fade-in duration-500">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <Link href="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group">
                     <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
                     <span className="font-bold">На главную</span>
                 </Link>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4">
                     <Link
                         href={`/profile/${user?.username}`}
-                        className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-muted text-foreground rounded-xl text-xs font-bold transition-all active:scale-95 border border-border/50"
+                        className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-secondary hover:bg-muted text-foreground rounded-2xl text-xs font-bold transition-all active:scale-95 border border-border/50 shadow-sm"
                     >
                         <ExternalLink size={14} />
                         Посмотреть свой профиль
@@ -218,7 +218,7 @@ export default function ProfilePage() {
                 />
 
                 {/* Avatar Overlay */}
-                <div className="absolute -bottom-12 left-8 md:left-12">
+                <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 md:left-12 md:translate-x-0">
                     <div
                         className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-card border-4 border-background shadow-2xl relative overflow-hidden cursor-pointer group/avatar"
                         onClick={(e) => {
@@ -267,7 +267,7 @@ export default function ProfilePage() {
                 </div>
             </section>
 
-            <div className="pt-12 md:pt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="pt-20 md:pt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Profile Edit Form */}
                 <div className="md:col-span-2 space-y-6">
                     <div className="bg-card border border-border rounded-[2rem] p-8 shadow-xl space-y-6">

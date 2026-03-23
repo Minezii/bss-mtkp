@@ -101,8 +101,8 @@ export default function PublicProfilePage() {
                     )}
                 </div>
 
-                {/* Avatar & Social Stats */}
-                <div className="absolute -bottom-12 left-8 md:left-12 flex items-end gap-6 w-[calc(100%-4rem)] md:w-[calc(100%-8rem)]">
+                {/* Avatar Overlay */}
+                <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 md:left-12 md:translate-x-0">
                     <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-card border-4 border-background shadow-2xl relative overflow-hidden flex-shrink-0">
                         {profile.avatarUrl ? (
                             <img src={profile.avatarUrl} alt={profile.username} className="w-full h-full object-cover" />
@@ -112,41 +112,51 @@ export default function PublicProfilePage() {
                             </div>
                         )}
                     </div>
-
-                    <div className="pb-4 hidden md:flex items-center gap-6">
-                        <div className="flex flex-col">
-                            <span className="text-2xl font-black">{profile._count.likes}</span>
-                            <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Лайков</span>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-2xl font-black">{profile._count.views}</span>
-                            <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Просмотров</span>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-2xl font-black">{profile._count.reviews}</span>
-                            <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Отзывов</span>
-                        </div>
-                    </div>
                 </div>
             </section>
 
+            {/* Social Stats Bar */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-12 md:pt-4">
+                <div className="hidden md:block w-40 flex-shrink-0" /> {/* Avatar Spacer */}
+
+                <div className="flex items-center justify-center md:justify-start gap-8 bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-4 px-8 shadow-sm">
+                    <div className="flex flex-col items-center">
+                        <span className="text-2xl font-black text-primary">{profile._count.likes}</span>
+                        <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Лайков</span>
+                    </div>
+                    <div className="w-px h-8 bg-border/50" />
+                    <div className="flex flex-col items-center">
+                        <span className="text-2xl font-black text-primary">{profile._count.views}</span>
+                        <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Просмотров</span>
+                    </div>
+                    <div className="w-px h-8 bg-border/50" />
+                    <div className="flex flex-col items-center">
+                        <span className="text-2xl font-black text-primary">{profile._count.reviews}</span>
+                        <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Отзывов</span>
+                    </div>
+                </div>
+
+                <div className="flex justify-center md:justify-end">
+                    <button
+                        onClick={toggleLike}
+                        disabled={likeLoading || !currentUser || currentUser.id === profile.id}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-2xl transition-all active:scale-95 border-2 ${profile.isLiked
+                            ? 'bg-rose-500/10 border-rose-500 text-rose-500 shadow-lg shadow-rose-500/20'
+                            : 'bg-secondary/50 border-transparent text-muted-foreground hover:border-rose-500/50'
+                            } disabled:opacity-50 disabled:active:scale-100 font-bold`}
+                    >
+                        <Heart size={20} fill={profile.isLiked ? "currentColor" : "none"} />
+                        <span>{profile.isLiked ? 'Понравилось' : 'Лайкнуть'}</span>
+                    </button>
+                </div>
+            </div>
+
             {/* Profile Info */}
-            <div className="pt-16 md:pt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="pt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="md:col-span-2 space-y-8">
                     <div className="space-y-2 text-center md:text-left">
                         <div className="flex items-center justify-center md:justify-start gap-4">
                             <h1 className="text-4xl font-black tracking-tight">{profile.username}</h1>
-                            <button
-                                onClick={toggleLike}
-                                disabled={likeLoading || !currentUser || currentUser.id === profile.id}
-                                className={`p-3 rounded-2xl transition-all active:scale-90 border-2 ${profile.isLiked
-                                    ? 'bg-rose-500/10 border-rose-500 text-rose-500 shadow-lg shadow-rose-500/20'
-                                    : 'bg-secondary/50 border-transparent text-muted-foreground hover:border-rose-500/50'
-                                    } disabled:opacity-50 disabled:active:scale-100`}
-                                title={!currentUser ? "Войдите, чтобы лайкнуть" : profile.id === currentUser.id ? "Свой профиль лайкать нельзя" : ""}
-                            >
-                                <Heart size={24} fill={profile.isLiked ? "currentColor" : "none"} />
-                            </button>
                         </div>
                         <div className="flex items-center justify-center md:justify-start gap-2 text-muted-foreground font-bold uppercase text-xs tracking-widest">
                             <CheckCircle2 size={14} className="text-primary" />
@@ -209,22 +219,6 @@ export default function PublicProfilePage() {
                                     <Calendar size={14} /> На сайте с
                                 </div>
                                 <span className="font-black">{new Date(profile.createdAt).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })}</span>
-                            </div>
-                        </div>
-
-                        {/* Mobile Stats */}
-                        <div className="md:hidden grid grid-cols-3 gap-4 border-t border-border pt-6">
-                            <div className="flex flex-col items-center">
-                                <span className="text-xl font-black">{profile._count.likes}</span>
-                                <span className="text-[8px] font-bold uppercase text-muted-foreground tracking-widest">Лайков</span>
-                            </div>
-                            <div className="flex flex-col items-center border-x border-border">
-                                <span className="text-xl font-black">{profile._count.views}</span>
-                                <span className="text-[8px] font-bold uppercase text-muted-foreground tracking-widest">Просмотров</span>
-                            </div>
-                            <div className="flex flex-col items-center">
-                                <span className="text-xl font-black">{profile._count.reviews}</span>
-                                <span className="text-[8px] font-bold uppercase text-muted-foreground tracking-widest">Отзывов</span>
                             </div>
                         </div>
                     </div>
