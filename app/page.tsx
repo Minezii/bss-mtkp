@@ -209,10 +209,10 @@ export default function Home() {
                       Предмет: <span className="text-foreground font-medium">{item.subject}</span>
                     </p>
                     <div className="flex justify-between items-center pt-4 border-t border-[#5865F2]/10">
-                      <span className="text-xs font-bold flex items-center gap-1.5 text-muted-foreground">
-                        <Download size={14} />
-                        {item.downloads}
-                      </span>
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground">
+                        <Clock size={14} />
+                        {new Date(item.createdAt).toLocaleDateString()}
+                      </div>
                       <span className="text-xs font-bold px-2 py-1 bg-[#5865F2]/10 text-[#5865F2] rounded-md">
                         {item.course} курс
                       </span>
