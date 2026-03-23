@@ -71,8 +71,12 @@ export default function CommentsModal({ teacherId, teacherName, isOpen, onClose 
                             <div key={review.id} className="bg-secondary/40 border border-border/50 rounded-2xl p-4 md:p-6 space-y-3 md:space-y-4">
                                 <div className="flex justify-between items-start gap-2">
                                     <div className="flex items-center gap-2 md:gap-3 min-w-0">
-                                        <div className="w-8 h-8 md:w-10 md:h-10 bg-primary/10 rounded-full flex-shrink-0 flex items-center justify-center text-primary">
-                                            <User size={18} className="md:w-5 md:h-5" />
+                                        <div className="w-8 h-8 md:w-10 md:h-10 bg-primary/10 rounded-full flex-shrink-0 flex items-center justify-center text-primary overflow-hidden">
+                                            {review.user.avatarUrl ? (
+                                                <img src={review.user.avatarUrl} alt={review.user.username} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <User size={18} className="md:w-5 md:h-5" />
+                                            )}
                                         </div>
                                         <div className="min-w-0">
                                             <p className="font-bold text-xs md:text-sm truncate">{review.user.username}</p>
