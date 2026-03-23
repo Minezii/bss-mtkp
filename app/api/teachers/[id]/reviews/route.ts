@@ -51,8 +51,9 @@ export async function POST(
             return NextResponse.json({ error: 'All ratings must be between 0 and 5' }, { status: 400 });
         }
 
-        // Calculate overall rating for this review (average of 4)
-        const avgRating = Math.round((lecturesRating + examsRating + clarityRating + fairnessRating) / 4);
+        // Calculate overall rating for this review (average of 4) 
+        // We invert strictness metrics (1 becomes 5, 5 becomes 1) so that "least strict" is weighted positively.
+        const avgRating = Math.round(((6 - lecturesRating) + (6 - examsRating) + clarityRating + fairnessRating) / 4);
 
         const userId = user.id;
 
