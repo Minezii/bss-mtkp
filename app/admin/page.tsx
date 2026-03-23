@@ -124,13 +124,13 @@ export default function AdminDashboard() {
         }
     };
 
-    const handleDeleteMaterial = async (id: number) => {
+    const handleDeleteMaterial = async (id: number, type: 'manual' | 'ai') => {
         if (!confirm('Удалить этот конспект навсегда?')) return;
         try {
             const res = await fetch('/api/admin/materials', {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id }),
+                body: JSON.stringify({ id, type }),
             });
             if (res.ok) fetchMaterials();
         } catch (err) {
@@ -301,15 +301,27 @@ export default function AdminDashboard() {
                                     ))
                                 ) : activeTab === 'materials' ? (
                                     materials.map((m) => (
-                                        <tr key={m.id} className="hover:bg-muted/30 transition-colors text-sm group">
-                                            <td className="px-6 py-5 font-bold text-primary">{m.subject}</td>
+                                        <tr key={`${m.type}-${m.id}`} className="hover:bg-muted/30 transition-colors text-sm group">
+                                            <td className="px-6 py-5 font-bold text-primary">
+                                                <div className="flex items-center gap-2">
+                                                    {m.type === 'ai' && (
+                                                        <span className="bg-primary/20 text-primary text-[8px] px-1.5 py-0.5 rounded font-black tracking-widest leading-none">ИИ</span>
+                                                    )}
+                                                    {m.subject || m.category}
+                                                </div>
+                                            </td>
                                             <td className="px-6 py-5 font-bold">{m.title}</td>
-                                            <td className="px-6 py-5 font-black text-xs uppercase opacity-60">{m.course} курс</td>
+                                            <td className="px-6 py-5 font-black text-xs uppercase opacity-60">{m.course} {typeof m.course === 'number' ? 'курс' : ''}</td>
                                             <td className="px-6 py-5 text-muted-foreground text-xs">{new Date(m.createdAt).toLocaleDateString()}</td>
                                             <td className="px-6 py-5 text-right">
                                                 <div className="flex justify-end gap-2">
-                                                    <button onClick={() => window.open(m.fileUrl || `/material/${m.id}`, '_blank')} className="p-2.5 bg-secondary hover:bg-primary hover:text-white rounded-xl transition-all"><Eye size={18} /></button>
-                                                    <button onClick={() => handleDeleteMaterial(m.id)} className="p-2.5 bg-destructive/10 text-destructive hover:bg-destructive hover:text-white rounded-xl transition-all"><Trash2 size={18} /></button>
+                                                    <button
+                                                        onClick={() => window.open(m.type === 'ai' ? `/summaries?uuid=${m.uuid}` : (m.fileUrl || `/material/${m.id}`), '_blank')}
+                                                        className="p-2.5 bg-secondary hover:bg-primary hover:text-white rounded-xl transition-all"
+                                                    >
+                                                        <Eye size={18} />
+                                                    </button>
+                                                    <button onClick={() => handleDeleteMaterial(m.id, m.type)} className="p-2.5 bg-destructive/10 text-destructive hover:bg-destructive hover:text-white rounded-xl transition-all"><Trash2 size={18} /></button>
                                                 </div>
                                             </td>
                                         </tr>
