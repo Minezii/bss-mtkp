@@ -29,15 +29,19 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Only image files are allowed' }, { status: 400 });
         }
 
-        // Create a unique filename
+        // Create a unique filename without nanoid to avoid ESM issues
+        const randomId = Math.random().toString(36).substring(2, 8);
         const ext = file.name.split('.').pop() || 'png';
-        const filename = `${type}s/${user.id}_${Date.now()}_${nanoid(6)}.${ext}`;
+        const filename = `${type}-${user.id}-${Date.now()}-${randomId}.${ext}`;
+
+        console.log('Attempting upload to Vercel Blob:', filename);
 
         // Upload to Vercel Blob
         const blob = await put(filename, file, {
             access: 'public',
         });
 
+        console.log('Upload successful:', blob.url);
         return NextResponse.json({ success: true, url: blob.url });
     } catch (error: any) {
         console.error('Upload error:', error);
