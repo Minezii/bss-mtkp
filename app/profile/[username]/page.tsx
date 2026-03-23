@@ -116,8 +116,8 @@ export default function PublicProfilePage() {
             </section>
 
             {/* Social Stats Bar */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-12 md:pt-4">
-                <div className="hidden md:block w-40 flex-shrink-0" /> {/* Avatar Spacer */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-24 md:pt-2">
+                <div className="hidden md:block w-44 flex-shrink-0" /> {/* Avatar Spacer */}
 
                 <div className="flex items-center justify-center md:justify-start gap-8 bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-4 px-8 shadow-sm">
                     <div className="flex flex-col items-center">
@@ -152,7 +152,7 @@ export default function PublicProfilePage() {
             </div>
 
             {/* Profile Info */}
-            <div className="pt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="pt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="md:col-span-2 space-y-8">
                     <div className="space-y-2 text-center md:text-left">
                         <div className="flex items-center justify-center md:justify-start gap-4">
