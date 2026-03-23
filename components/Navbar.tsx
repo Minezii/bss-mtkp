@@ -96,10 +96,10 @@ export default function Navbar() {
 
                             {user ? (
                                 <div className="flex items-center gap-3">
-                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary rounded-full text-sm font-bold">
+                                    <Link href="/profile" className="flex items-center gap-2 px-3 py-1.5 bg-secondary hover:bg-muted transition-colors rounded-full text-sm font-bold">
                                         <User size={16} className="text-primary" />
                                         {user.username}
-                                    </div>
+                                    </Link>
                                     <button
                                         onClick={handleLogout}
                                         className="p-2 text-muted-foreground hover:text-destructive transition-colors"
@@ -117,6 +117,11 @@ export default function Navbar() {
                                 </button>
                             )}
 
+                            <div className="hidden lg:block h-6 w-px bg-border mx-2" />
+                            <div className="hidden lg:block text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-50">
+                                v1.0.0
+                            </div>
+
                             <button
                                 onClick={toggleTheme}
                                 className="p-2 ml-2 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
@@ -129,10 +134,10 @@ export default function Navbar() {
                         {/* Mobile Menu Button */}
                         <div className="md:hidden flex items-center gap-2">
                             {user && (
-                                <div className="flex items-center gap-2 px-2 py-1 bg-secondary rounded-full text-xs font-bold">
+                                <Link href="/profile" className="flex items-center gap-2 px-2 py-1 bg-secondary rounded-full text-xs font-bold">
                                     <User size={14} className="text-primary" />
                                     {user.username}
-                                </div>
+                                </Link>
                             )}
                             <button
                                 onClick={toggleTheme}
@@ -150,7 +155,7 @@ export default function Navbar() {
                         </div>
                     </div>
                 </div>
-            </nav>
+            </nav >
 
             <AuthModal
                 isOpen={isAuthModalOpen}
@@ -235,7 +240,7 @@ export default function Navbar() {
 
                         <div className="mt-auto pt-6 border-t border-border">
                             <p className="text-xs text-muted-foreground font-medium text-center">
-                                БСС МТКП v0.1.0
+                                БСС МТКП v1.0.0
                             </p>
                         </div>
                     </div>

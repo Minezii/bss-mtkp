@@ -58,6 +58,8 @@ model User {
   username     String   @unique
   passwordHash String
   group        String?  // New field for groups like "ТИП 11"
+  avatarUrl    String?  // New field
+  bannerUrl    String?  // New field
   reviews      Review[]
   submissions  Submission[]
   createdAt    DateTime @default(now())
