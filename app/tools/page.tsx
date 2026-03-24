@@ -16,6 +16,8 @@ import {
     Trash2
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
 
 const baseCategories = [
     { title: 'Математика', icon: Calculator, color: 'bg-blue-500/10 text-blue-500 shadow-[0_0_15px_-3px_rgba(59,130,246,0.3)]' },
@@ -27,6 +29,8 @@ const baseCategories = [
 export default function ToolsPage() {
     const [tools, setTools] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
+
 
     // GPA Calculator State
     const [grades, setGrades] = useState<number[]>([5, 4, 5]);
@@ -219,11 +223,26 @@ export default function ToolsPage() {
                                     {category.tools.map((tool: any) => (
                                         <div
                                             key={tool.name}
-                                            onClick={() => tool.url && window.open(tool.url, '_blank')}
+                                            onClick={() => {
+                                                if (tool.url) {
+                                                    if (tool.url.startsWith('/')) {
+                                                        router.push(tool.url);
+                                                    } else {
+                                                        window.open(tool.url, '_blank');
+                                                    }
+                                                }
+                                            }}
                                             className="group flex items-center justify-between p-5 bg-card border border-border rounded-2xl hover:border-primary/40 hover:shadow-xl transition-all cursor-pointer"
                                         >
                                             <div className="space-y-1">
-                                                <h3 className="text-lg font-bold group-hover:text-primary transition-colors">{tool.name}</h3>
+                                                <div className="flex items-center gap-2">
+                                                    <h3 className="text-lg font-bold group-hover:text-primary transition-colors">{tool.name}</h3>
+                                                    {tool.url?.startsWith('/') && (
+                                                        <span className="bg-primary/10 text-primary text-[10px] font-black uppercase px-2 py-0.5 rounded-md border border-primary/20">
+                                                            Авторский
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <p className="text-xs text-muted-foreground leading-relaxed">{tool.desc}</p>
                                             </div>
                                             <ChevronRight size={18} className="text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
