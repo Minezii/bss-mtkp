@@ -99,7 +99,26 @@ export default function CommentsModal({ teacherId, teacherName, isOpen, onClose 
                                     </p>
                                 )}
 
-                                <div className="flex items-center gap-4 pt-2 border-t border-border/30">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 p-3 bg-card/50 rounded-xl border border-border/30">
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/70">Лекции</span>
+                                        <StarRating rating={review.lecturesRating} size={10} />
+                                    </div>
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/70">Экзамены</span>
+                                        <StarRating rating={review.examsRating} size={10} />
+                                    </div>
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/70">Понятность</span>
+                                        <StarRating rating={review.clarityRating} size={10} />
+                                    </div>
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/70">Справедливость</span>
+                                        <StarRating rating={review.fairnessRating} size={10} />
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-4 pt-2">
                                     <div className={`flex items-center gap-1.5 text-xs font-black uppercase tracking-widest ${review.isRecommended ? 'text-green-500' : 'text-red-500'}`}>
                                         {review.isRecommended ? (
                                             <>
