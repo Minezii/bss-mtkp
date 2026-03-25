@@ -24,10 +24,11 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
-        const isMatch = await comparePassword(currentPassword, user.passwordHash);
-        if (!isMatch) {
+        const { valid } = await comparePassword(currentPassword, user.passwordHash);
+        if (!valid) {
             return NextResponse.json({ error: 'Incorrect current password' }, { status: 400 });
         }
+
 
         const newPasswordHash = await hashPassword(newPassword);
 
