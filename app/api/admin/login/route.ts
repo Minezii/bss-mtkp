@@ -4,7 +4,12 @@ import { crypto } from 'next/dist/compiled/@edge-runtime/primitives';
 
 export const dynamic = 'force-dynamic';
 
-const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback_secret');
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET && process.env.NODE_ENV === 'production') {
+    console.error('CRITICAL: JWT_SECRET environment variable is missing for Admin Login!');
+}
+const SECRET = new TextEncoder().encode(JWT_SECRET || 'temp_dev_secret_only_for_local_development');
+
 
 export async function POST(request: Request) {
     try {

@@ -25,13 +25,19 @@ export async function POST(request: Request) {
         }
 
         // Validate file type
-        if (!file.type.startsWith('image/')) {
-            return NextResponse.json({ error: 'Only image files are allowed' }, { status: 400 });
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+        if (!allowedTypes.includes(file.type)) {
+            return NextResponse.json({ error: 'Only JPG, PNG, WEBP and GIF images are allowed' }, { status: 400 });
         }
 
-        // Create a unique filename without nanoid to avoid ESM issues
+        const allowedExts = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+        const ext = file.name.split('.').pop()?.toLowerCase() || '';
+        if (!allowedExts.includes(ext)) {
+            return NextResponse.json({ error: 'Invalid file extension' }, { status: 400 });
+        }
+
+        // Create a unique filename
         const randomId = Math.random().toString(36).substring(2, 8);
-        const ext = file.name.split('.').pop() || 'png';
         const filename = `${type}-${user.id}-${Date.now()}-${randomId}.${ext}`;
 
         console.log('Attempting upload to Vercel Blob:', filename);

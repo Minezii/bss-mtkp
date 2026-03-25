@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { comparePassword, signToken } from '@/lib/auth';
+import { comparePassword, signToken, hashPassword } from '@/lib/auth';
 import { cookies } from 'next/headers';
 
 export async function POST(request: Request) {
@@ -16,9 +16,26 @@ export async function POST(request: Request) {
             where: { username }
         });
 
-        if (!user || !(await comparePassword(password, user.passwordHash))) {
+        if (!user) {
             return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
         }
+
+        const { valid, needsUpgrade } = await comparePassword(password, user.passwordHash);
+
+        if (!valid) {
+            return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+        }
+
+        // Seamless migration: re-hash and update if using legacy iteration count
+        if (needsUpgrade) {
+            console.log(`Upgrading password hash for user: ${user.username}`);
+            const newHash = await hashPassword(password);
+            await prisma.user.update({
+                where: { id: user.id },
+                data: { passwordHash: newHash }
+            });
+        }
+
 
         const token = await signToken({
             id: user.id,

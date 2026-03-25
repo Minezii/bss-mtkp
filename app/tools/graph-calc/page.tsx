@@ -356,7 +356,7 @@ export default function GraphCalcPage() {
                     {/* Tutorial Hint */}
                     <div className="absolute top-6 right-6 flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-black shadow-xl animate-bounce">
                         <MousePointer2 size={14} />
-                        Тяни холст и крути колесо
+                        Тяни холст и крути колесико
                     </div>
                 </main>
             </div>
