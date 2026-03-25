@@ -35,34 +35,52 @@ export async function hashPassword(password: string): Promise<string> {
  * Returns migration status to allow automatic upgrade to stronger hashing.
  */
 export async function comparePassword(password: string, storedHash: string): Promise<{ valid: boolean; needsUpgrade: boolean }> {
+    if (!storedHash || !storedHash.includes(':')) {
+        console.error('Invalid hash format in database');
+        return { valid: false, needsUpgrade: false };
+    }
+
     const [salt, hash] = storedHash.split(':');
+    console.log(`Verifying password. Hash length: ${hash?.length}, Salt length: ${salt?.length}`);
 
     // 1. Try with new iteration count (600,000)
     const isValidNew = await new Promise<boolean>((resolve) => {
         crypto.pbkdf2(password, salt, 600000, 64, 'sha512', (err, derivedKey) => {
-            if (err) resolve(false);
-            resolve(derivedKey.toString('hex') === hash);
+            if (err) {
+                console.error('PBKDF2 Error (600k):', err);
+                resolve(false);
+            }
+            const result = derivedKey.toString('hex') === hash;
+            resolve(result);
         });
     });
 
     if (isValidNew) {
+        console.log('Password verified with 600k iterations');
         return { valid: true, needsUpgrade: false };
     }
 
     // 2. Fallback to legacy iteration count (1,000)
     const isValidLegacy = await new Promise<boolean>((resolve) => {
         crypto.pbkdf2(password, salt, 1000, 64, 'sha512', (err, derivedKey) => {
-            if (err) resolve(false);
-            resolve(derivedKey.toString('hex') === hash);
+            if (err) {
+                console.error('PBKDF2 Error (1k):', err);
+                resolve(false);
+            }
+            const result = derivedKey.toString('hex') === hash;
+            resolve(result);
         });
     });
 
     if (isValidLegacy) {
+        console.log('Password verified with 1k iterations (migration needed)');
         return { valid: true, needsUpgrade: true };
     }
 
+    console.warn('Password verification failed for both 600k and 1k iterations');
     return { valid: false, needsUpgrade: false };
 }
+
 
 
 /**
