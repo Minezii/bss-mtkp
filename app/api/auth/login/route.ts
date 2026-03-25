@@ -7,6 +7,7 @@ export async function POST(request: Request) {
     try {
         const { username: rawUsername, password } = await request.json();
         const username = rawUsername?.toLowerCase().trim();
+        console.log(`Login attempt for: "${rawUsername}" -> processed as: "${username}"`);
 
         if (!username || !password) {
             return NextResponse.json({ error: 'Username and password required' }, { status: 400 });
@@ -17,14 +18,19 @@ export async function POST(request: Request) {
         });
 
         if (!user) {
+            console.warn(`User NOT found in DB for username: "${username}"`);
             return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
         }
+
+        console.log(`User found: ID=${user.id}, DB_Username="${user.username}"`);
 
         const { valid, needsUpgrade } = await comparePassword(password, user.passwordHash);
 
         if (!valid) {
+            console.warn(`Password mismatch for user: "${username}"`);
             return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
         }
+
 
         // Seamless migration: re-hash and update if using legacy iteration count
         if (needsUpgrade) {
