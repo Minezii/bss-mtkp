@@ -24,8 +24,9 @@ export async function POST(request: Request) {
         const user = await prisma.user.create({
             data: {
                 username,
-                passwordHash
-            }
+                displayName: rawUsername.trim(),
+                passwordHash,
+            },
         });
 
         return NextResponse.json({

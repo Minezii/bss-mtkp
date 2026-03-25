@@ -12,7 +12,7 @@ export async function GET(
             where: { teacherId },
             include: {
                 user: {
-                    select: { username: true, group: true, avatarUrl: true }
+                    select: { username: true, displayName: true, group: true, avatarUrl: true }
                 }
             },
             orderBy: { createdAt: 'desc' }

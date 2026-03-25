@@ -46,6 +46,7 @@ export async function POST(request: Request) {
         const token = await signToken({
             id: user.id,
             username: user.username,
+            displayName: user.displayName || user.username,
             role: 'student'
         });
 
@@ -60,8 +61,13 @@ export async function POST(request: Request) {
 
         return NextResponse.json({
             success: true,
-            user: { id: user.id, username: user.username }
+            user: {
+                id: user.id,
+                username: user.username,
+                displayName: user.displayName || user.username
+            }
         });
+
     } catch (error) {
         console.error('Login error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

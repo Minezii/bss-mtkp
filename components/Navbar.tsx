@@ -138,8 +138,7 @@ export default function Navbar() {
                             {user ? (
                                 <div className="flex items-center gap-2 pr-2 border-r border-border">
                                     <Link href="/profile" className="flex items-center gap-2 px-3 py-1.5 bg-secondary hover:bg-muted transition-colors rounded-full text-sm font-bold border border-transparent hover:border-border">
-                                        <User size={16} className="text-primary" />
-                                        {user.username}
+                                        {user.displayName || user.username}
                                     </Link>
                                     <button
                                         onClick={handleLogout}
@@ -176,8 +175,7 @@ export default function Navbar() {
                         <div className="md:hidden flex items-center gap-2">
                             {user && (
                                 <Link href="/profile" className="flex items-center gap-2 px-2 py-1 bg-secondary rounded-full text-xs font-bold">
-                                    <User size={14} className="text-primary" />
-                                    {user.username}
+                                    {user.displayName || user.username}
                                 </Link>
                             )}
                             <button

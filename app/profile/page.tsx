@@ -34,7 +34,7 @@ export default function ProfilePage() {
         }
         const parsed = JSON.parse(savedUser);
         setUser(parsed);
-        setUsername(parsed.username);
+        setUsername(parsed.displayName || parsed.username);
         setAvatarPreview(parsed.avatarUrl || null);
         setBannerPreview(parsed.bannerUrl || null);
         setQuote(parsed.quote || '');
@@ -46,7 +46,7 @@ export default function ProfilePage() {
                 if (data.user) {
                     const fullUser = data.user;
                     setUser(fullUser);
-                    setUsername(fullUser.username);
+                    setUsername(fullUser.displayName || fullUser.username);
                     setAvatarPreview(fullUser.avatarUrl || null);
                     setBannerPreview(fullUser.bannerUrl || null);
                     setQuote(fullUser.quote || '');
@@ -104,6 +104,7 @@ export default function ProfilePage() {
                 const updated = { ...user, ...data.user };
                 localStorage.setItem('bss_user', JSON.stringify(updated));
                 setUser(updated);
+                setUsername(data.user.displayName || data.user.username);
                 setMessage({ text: 'Профиль обновлен', type: 'success' });
             } else {
                 setMessage({ text: data.error || 'Ошибка обновления', type: 'error' });

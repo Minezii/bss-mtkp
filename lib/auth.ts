@@ -13,6 +13,7 @@ const SECRET = encoder.encode(JWT_SECRET || 'temp_dev_secret_only_for_local_deve
 export interface JWTPayload {
     id: number;
     username: string;
+    displayName: string;
     role: 'student' | 'admin';
 }
 
@@ -87,10 +88,15 @@ export async function comparePassword(password: string, storedHash: string): Pro
  * Sign a JWT token
  */
 export async function signToken(payload: JWTPayload): Promise<string> {
-    return new SignJWT({ ...payload })
-        .setProtectedHeader({ alg: 'HS256' })
-        .setExpirationTime('30d')
-        .sign(SECRET);
+    return new Promise((resolve, reject) => {
+        new SignJWT(payload)
+            .setProtectedHeader({ alg: 'HS256' })
+            .setIssuedAt()
+            .setExpirationTime('30d')
+            .sign(SECRET)
+            .then(resolve)
+            .catch(reject);
+    });
 }
 
 /**

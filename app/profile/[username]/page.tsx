@@ -95,7 +95,7 @@ export default function PublicProfilePage() {
                     ) : (
                         <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary flex items-center justify-center">
                             <div className="text-primary/20 font-black text-6xl md:text-8xl select-none uppercase tracking-tighter">
-                                {profile.username}
+                                {profile.displayName || profile.username}
                             </div>
                         </div>
                     )}
@@ -105,7 +105,7 @@ export default function PublicProfilePage() {
                 <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 md:left-12 md:translate-x-0">
                     <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-card border-4 border-background shadow-2xl relative overflow-hidden flex-shrink-0">
                         {profile.avatarUrl ? (
-                            <img src={profile.avatarUrl} alt={profile.username} className="w-full h-full object-cover" />
+                            <img src={profile.avatarUrl} alt={profile.displayName || profile.username} className="w-full h-full object-cover" />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-secondary">
                                 <UserIcon size={64} />
@@ -156,7 +156,7 @@ export default function PublicProfilePage() {
                 <div className="md:col-span-2 space-y-8">
                     <div className="space-y-2 text-center md:text-left">
                         <div className="flex items-center justify-center md:justify-start gap-4">
-                            <h1 className="text-4xl font-black tracking-tight">{profile.username}</h1>
+                            <h1 className="text-4xl font-black tracking-tight">{profile.displayName || profile.username}</h1>
                         </div>
                         <div className="flex items-center justify-center md:justify-start gap-2 text-muted-foreground font-bold uppercase text-xs tracking-widest">
                             <CheckCircle2 size={14} className="text-primary" />

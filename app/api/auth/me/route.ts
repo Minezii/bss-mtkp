@@ -14,6 +14,7 @@ export async function GET() {
         select: {
             id: true,
             username: true,
+            displayName: true,
             group: true,
             avatarUrl: true,
             bannerUrl: true,
@@ -24,6 +25,5 @@ export async function GET() {
     if (!user) {
         return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
-
     return NextResponse.json({ user });
 }

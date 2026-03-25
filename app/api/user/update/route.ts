@@ -16,10 +16,12 @@ export async function POST(request: Request) {
         const updatedUser = await prisma.user.update({
             where: { id: currentUser.id },
             data: {
-                username: username || undefined,
+                username: username ? username.toLowerCase().trim() : undefined,
+                displayName: username ? username.trim() : undefined,
                 avatarUrl: avatarUrl === null ? null : (avatarUrl || undefined),
                 bannerUrl: bannerUrl === null ? null : (bannerUrl || undefined),
                 quote: quote === null ? null : (quote || undefined),
+
             },
         });
 
@@ -28,6 +30,7 @@ export async function POST(request: Request) {
             user: {
                 id: updatedUser.id,
                 username: updatedUser.username,
+                displayName: updatedUser.displayName,
                 avatarUrl: updatedUser.avatarUrl,
                 bannerUrl: updatedUser.bannerUrl,
                 quote: updatedUser.quote

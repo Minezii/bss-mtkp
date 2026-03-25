@@ -13,7 +13,7 @@ export async function POST(
         }
 
         const targetUser = await prisma.user.findUnique({
-            where: { username: params.username },
+            where: { username: params.username.toLowerCase() },
             select: { id: true }
         });
 

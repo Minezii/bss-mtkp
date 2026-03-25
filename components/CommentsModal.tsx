@@ -74,13 +74,13 @@ export default function CommentsModal({ teacherId, teacherName, isOpen, onClose 
                                     <div className="flex items-center gap-2 md:gap-3 min-w-0">
                                         <div className="w-8 h-8 md:w-10 md:h-10 bg-primary/10 rounded-full flex-shrink-0 flex items-center justify-center text-primary overflow-hidden">
                                             {review.user.avatarUrl ? (
-                                                <img src={review.user.avatarUrl} alt={review.user.username} className="w-full h-full object-cover" />
+                                                <img src={review.user.avatarUrl} alt={review.user.displayName || review.user.username} className="w-full h-full object-cover" />
                                             ) : (
                                                 <User size={18} className="md:w-5 md:h-5" />
                                             )}
                                         </div>
                                         <Link href={`/profile/${review.user.username}`} className="min-w-0 group/u">
-                                            <p className="font-bold text-xs md:text-sm truncate group-hover/u:text-primary transition-colors">{review.user.username}</p>
+                                            <p className="font-bold text-xs md:text-sm truncate group-hover/u:text-primary transition-colors">{review.user.displayName || review.user.username}</p>
                                             <p className="text-[9px] md:text-[10px] text-muted-foreground font-bold uppercase tracking-wider truncate">{review.user.group || 'Студент'}</p>
                                         </Link>
                                     </div>

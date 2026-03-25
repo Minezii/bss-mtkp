@@ -7,7 +7,7 @@ export async function GET(
     { params }: { params: { username: string } }
 ) {
     try {
-        const username = params.username;
+        const username = params.username.toLowerCase();
         const currentUser = await getCurrentUser();
 
         // 1. Fetch user by username
@@ -16,7 +16,9 @@ export async function GET(
             select: {
                 id: true,
                 username: true,
+                displayName: true,
                 avatarUrl: true,
+
                 bannerUrl: true,
                 quote: true,
                 group: true,
