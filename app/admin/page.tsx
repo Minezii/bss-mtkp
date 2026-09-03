@@ -13,9 +13,16 @@ export default function AdminDashboard() {
     const [showSubjectsModal, setShowSubjectsModal] = useState(false);
     const [newSubject, setNewSubject] = useState('');
     const [stats, setStats] = useState({ materials: 0, teachers: 0, tools: 0 });
-    const [activeTab, setActiveTab] = useState<'submissions' | 'materials' | 'tools'>('submissions');
+    const [activeTab, setActiveTab] = useState<'submissions' | 'materials' | 'tools' | 'teachers'>('submissions');
     const [materials, setMaterials] = useState<any[]>([]);
     const [tools, setTools] = useState<any[]>([]);
+    const [teachers, setTeachers] = useState<any[]>([]);
+
+    const [editingTeacher, setEditingTeacher] = useState<any>(null);
+    const [showTeacherModal, setShowTeacherModal] = useState(false);
+    const [teacherName, setTeacherName] = useState('');
+    const [teacherSubjects, setTeacherSubjects] = useState('');
+    const [teacherImageUrl, setTeacherImageUrl] = useState('');
 
     const fetchSubmissions = async () => {
         setLoading(true);
@@ -70,11 +77,25 @@ export default function AdminDashboard() {
         }
     };
 
+    const fetchTeachers = async () => {
+        try {
+            const res = await fetch('/api/admin/teachers');
+            if (res.ok) {
+                const data = await res.json();
+                setTeachers(data);
+                setStats(s => ({ ...s, teachers: data.length }));
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     useEffect(() => {
         fetchSubmissions();
         fetchSubjects();
         fetchMaterials();
         fetchTools();
+        fetchTeachers();
     }, []);
 
     const handleModeration = async (id: number, action: 'approve' | 'reject') => {
@@ -153,6 +174,75 @@ export default function AdminDashboard() {
         }
     };
 
+    const openAddTeacher = () => {
+        setEditingTeacher(null);
+        setTeacherName('');
+        setTeacherSubjects('');
+        setTeacherImageUrl('');
+        setShowTeacherModal(true);
+    };
+
+    const openEditTeacher = (t: any) => {
+        setEditingTeacher(t);
+        setTeacherName(t.name);
+        setTeacherSubjects(t.subjects || '');
+        setTeacherImageUrl(t.imageUrl || '');
+        setShowTeacherModal(true);
+    };
+
+    const handleSaveTeacher = async () => {
+        if (!teacherName.trim() || !teacherSubjects.trim()) {
+            alert('Заполните ФИО и список предметов');
+            return;
+        }
+
+        const payload = {
+            name: teacherName.trim(),
+            subjects: teacherSubjects.trim(),
+            imageUrl: teacherImageUrl.trim() || null,
+        };
+
+        try {
+            const res = editingTeacher
+                ? await fetch('/api/admin/teachers', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: editingTeacher.id, ...payload }),
+                })
+                : await fetch('/api/admin/teachers', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+
+            if (res.ok) {
+                setShowTeacherModal(false);
+                setEditingTeacher(null);
+                fetchTeachers();
+            } else {
+                const data = await res.json().catch(() => ({}));
+                alert(data.error || 'Ошибка при сохранении преподавателя');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Ошибка при сохранении преподавателя');
+        }
+    };
+
+    const handleDeleteTeacher = async (id: number) => {
+        if (!confirm('Удалить этого преподавателя навсегда?')) return;
+        try {
+            const res = await fetch('/api/admin/teachers', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id }),
+            });
+            if (res.ok) fetchTeachers();
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     const handleLogout = async () => {
         document.cookie = "admin_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         router.refresh();
@@ -195,12 +285,80 @@ export default function AdminDashboard() {
                 </div>
             )}
 
+            {showTeacherModal && (
+                <div className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-xl flex items-center justify-center p-4">
+                    <div className="bg-card border border-border w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden p-8 space-y-6">
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-2xl font-black">
+                                {editingTeacher ? 'Редактирование преподавателя' : 'Добавить преподавателя'}
+                            </h2>
+                            <button onClick={() => setShowTeacherModal(false)} className="p-2 hover:bg-muted rounded-full">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold">ФИО преподавателя</label>
+                                <input
+                                    value={teacherName}
+                                    onChange={(e) => setTeacherName(e.target.value)}
+                                    placeholder="Иванов Иван Иванович"
+                                    className="w-full bg-secondary border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary outline-none"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold">Предметы (через запятую)</label>
+                                <input
+                                    value={teacherSubjects}
+                                    onChange={(e) => setTeacherSubjects(e.target.value)}
+                                    placeholder="Математика, Физика"
+                                    className="w-full bg-secondary border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary outline-none"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold">Ссылка на фото (необязательно)</label>
+                                <input
+                                    value={teacherImageUrl}
+                                    onChange={(e) => setTeacherImageUrl(e.target.value)}
+                                    placeholder="https://..."
+                                    className="w-full bg-secondary border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary outline-none"
+                                />
+                            </div>
+                        </div>
+                        <div className="flex justify-end gap-2">
+                            <button
+                                onClick={() => setShowTeacherModal(false)}
+                                className="px-6 py-3 rounded-xl font-bold bg-secondary text-secondary-foreground hover:bg-muted transition-all"
+                            >
+                                Отмена
+                            </button>
+                            <button
+                                onClick={handleSaveTeacher}
+                                className="px-6 py-3 rounded-xl font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all"
+                            >
+                                <div className="flex items-center gap-2">
+                                    <Save size={16} />
+                                    {editingTeacher ? 'Сохранить' : 'Добавить'}
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-border pb-6">
                 <div className="space-y-1">
                     <h1 className="text-4xl font-extrabold tracking-tight">Панель управления</h1>
                     <p className="text-muted-foreground font-medium italic">БСС МТКП — Административный сектор</p>
                 </div>
                 <div className="flex gap-2">
+                    <button
+                        onClick={openAddTeacher}
+                        className="flex items-center gap-2 bg-secondary text-secondary-foreground hover:bg-muted px-4 py-2 rounded-xl text-sm font-bold transition-all"
+                    >
+                        <UserPlus size={16} />
+                        Преподаватель
+                    </button>
                     <button
                         onClick={() => setShowSubjectsModal(true)}
                         className="flex items-center gap-2 bg-secondary text-secondary-foreground hover:bg-muted px-4 py-2 rounded-xl text-sm font-bold transition-all"
@@ -246,12 +404,19 @@ export default function AdminDashboard() {
                         >
                             Инструменты ({tools.length})
                         </button>
+                        <button
+                            onClick={() => setActiveTab('teachers')}
+                            className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'teachers' ? 'bg-primary text-primary-foreground shadow-lg' : 'hover:bg-muted'}`}
+                        >
+                            Преподаватели ({teachers.length})
+                        </button>
                     </div>
 
                     <h2 className="text-xl font-black flex items-center gap-3">
                         {activeTab === 'submissions' && 'Активные заявки'}
                         {activeTab === 'materials' && 'Опубликованные конспекты'}
                         {activeTab === 'tools' && 'Библиотека инструментов'}
+                        {activeTab === 'teachers' && 'Список преподавателей'}
                         {activeTab === 'submissions' && submissions.some(s => s.status === 'draft') && (
                             <span className="text-xs font-bold text-orange-500 bg-orange-500/10 px-3 py-0.5 rounded-full">
                                 + черновики
@@ -265,10 +430,10 @@ export default function AdminDashboard() {
                         <table className="w-full text-left min-w-[600px]">
                             <thead>
                                 <tr className="bg-secondary/50 text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em] border-b border-border">
-                                    <th className="px-6 py-5">{activeTab === 'submissions' ? 'Тип' : 'Предмет'}</th>
+                                    <th className="px-6 py-5">{activeTab === 'submissions' ? 'Тип' : activeTab === 'teachers' ? 'Фото' : 'Предмет'}</th>
                                     <th className="px-6 py-5">Название</th>
-                                    <th className="px-6 py-5">{activeTab === 'submissions' ? 'Автор' : 'Курс'}</th>
-                                    <th className="px-6 py-5">Дата</th>
+                                    <th className="px-6 py-5">{activeTab === 'submissions' ? 'Автор' : activeTab === 'teachers' ? 'Предметы' : 'Курс'}</th>
+                                    <th className="px-6 py-5">{activeTab === 'teachers' ? 'Рейтинг' : 'Дата'}</th>
                                     <th className="px-6 py-5 text-right">Действие</th>
                                 </tr>
                             </thead>
@@ -372,11 +537,64 @@ export default function AdminDashboard() {
                                             </tr>
                                         );
                                     })
+                                ) : activeTab === 'teachers' ? (
+                                    teachers.map((t) => (
+                                        <tr key={t.id} className="hover:bg-muted/30 transition-colors text-sm group">
+                                            <td className="px-6 py-5">
+                                                {t.imageUrl ? (
+                                                    // eslint-disable-next-line @next/next/no-img-element
+                                                    <img
+                                                        src={t.imageUrl}
+                                                        alt={t.name}
+                                                        className="w-10 h-10 rounded-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
+                                                        <UserPlus size={16} className="text-emerald-500" />
+                                                    </div>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-5 font-bold">{t.name}</td>
+                                            <td className="px-6 py-5 font-medium text-muted-foreground max-w-[240px]">
+                                                <div className="flex flex-wrap gap-1">
+                                                    {(t.subjects || '').split(',').map((s: string, i: number) => (
+                                                        s.trim() && (
+                                                            <span key={i} className="text-xs bg-secondary/60 px-2 py-0.5 rounded-lg">
+                                                                {s.trim()}
+                                                            </span>
+                                                        )
+                                                    ))}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-5 text-muted-foreground text-xs">
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="font-bold text-amber-500 font-mono">
+                                                        {Number(t.overallRating || 0).toFixed(1)} <span className="text-muted-foreground font-medium">/ 5</span>
+                                                    </span>
+                                                    <span className="text-[10px]">{t.reviewsCount || 0} отзывов</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-5 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <button
+                                                        onClick={() => {
+                                                            window.open('/teachers', '_blank');
+                                                        }}
+                                                        className="p-2.5 bg-secondary hover:bg-primary hover:text-white rounded-xl transition-all"
+                                                    >
+                                                        <Eye size={18} />
+                                                    </button>
+                                                    <button onClick={() => openEditTeacher(t)} className="p-2.5 bg-secondary hover:bg-primary hover:text-white rounded-xl transition-all"><Edit3 size={18} /></button>
+                                                    <button onClick={() => handleDeleteTeacher(t.id)} className="p-2.5 bg-destructive/10 text-destructive hover:bg-destructive hover:text-white rounded-xl transition-all"><Trash2 size={18} /></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
                                 ) : null}
                             </tbody>
                         </table>
                     </div>
-                    {((activeTab === 'submissions' && submissions.length === 0) || (activeTab === 'materials' && materials.length === 0) || (activeTab === 'tools' && tools.length === 0)) && !loading && (
+                    {((activeTab === 'submissions' && submissions.length === 0) || (activeTab === 'materials' && materials.length === 0) || (activeTab === 'tools' && tools.length === 0) || (activeTab === 'teachers' && teachers.length === 0)) && !loading && (
                         <div className="py-24 text-center text-muted-foreground italic font-medium">
                             Тут пока пусто... ☕
                         </div>
