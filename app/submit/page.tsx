@@ -18,8 +18,8 @@ export default function SubmitPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (selectedFile && selectedFile.size > 4.5 * 1024 * 1024) {
-            alert('Файл слишком большой для прямой загрузки (лимит 4.5МБ на Vercel). Пожалуйста, загрузи его на Яндекс.Диск/Google Drive и вставь ссылку в описание, либо выбери файл поменьше.');
+        if (selectedFile && selectedFile.size > 20 * 1024 * 1024) {
+            alert('Файл слишком большой (максимум 20 МБ).');
             return;
         }
 
@@ -177,7 +177,7 @@ export default function SubmitPage() {
                             name="file"
                             className="hidden"
                             onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                            accept=".pdf,.docx,.png,.jpg,.jpeg"
+                            accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.gif,.webp,.txt,.rtf,.odt,.zip,.rar,.7z,.ppt,.pptx,.xls,.xlsx,.csv"
                         />
                         <label
                             htmlFor="file-upload"
@@ -188,7 +188,7 @@ export default function SubmitPage() {
                                 {selectedFile ? selectedFile.name : 'Выбери файл'}
                             </p>
                             <p className="text-xs text-muted-foreground mt-1 underline">
-                                {selectedFile ? `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB` : 'PDF, DOCX, PNG до 4.5MB'}
+                                {selectedFile ? `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB` : 'PDF, DOCX, PNG и др. до 20 МБ'}
                             </p>
                             {selectedFile && (
                                 <button

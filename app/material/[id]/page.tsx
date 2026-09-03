@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ChevronLeft, RefreshCcw, Clock, BookOpen, FileText } from 'lucide-react';
+import { ChevronLeft, RefreshCcw, Clock, BookOpen, FileText, Download } from 'lucide-react';
 import SummaryRenderer from '@/components/SummaryRenderer';
-import { parseAttachedFilename } from '@/lib/materialLink';
+import { parseAttachedFilename, isHttpUrl } from '@/lib/materialLink';
 
 export default function MaterialPage() {
     const params = useParams();
@@ -33,7 +33,6 @@ export default function MaterialPage() {
         }
     }, [params.id]);
 
-    // Simple markdown to blocks converter for display
     const parseMarkdownToBlocks = (md: string) => {
         const lines = md.split('\n');
         const blocks: any[] = [];
@@ -61,7 +60,6 @@ export default function MaterialPage() {
                 currentList.push(trimmed.replace('- ', ''));
             } else if (trimmed === '') {
                 flushList();
-                // blocks.push({ type: 'delimiter', data: {} });
             } else {
                 flushList();
                 blocks.push({ type: 'paragraph', data: { text: trimmed } });
@@ -86,10 +84,12 @@ export default function MaterialPage() {
     );
 
     const attachedName = parseAttachedFilename(material.fileUrl);
+    const hasDownloadableFile = isHttpUrl(material.fileUrl);
+
+    const downloadFilename = attachedName || material.fileUrl?.split('/').pop()?.split('?')[0] || 'file';
 
     return (
         <div className="min-h-screen bg-background pb-20">
-            {/* Header / Navbar Spacer */}
             <div className="h-16 md:h-20" />
 
             <main className="max-w-4xl mx-auto px-6 pt-12">
@@ -128,7 +128,32 @@ export default function MaterialPage() {
                     </div>
                 </div>
 
-                {attachedName && (
+                {hasDownloadableFile && (
+                    <div className="mb-12">
+                        <a
+                            href={material.fileUrl}
+                            download={downloadFilename}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group flex items-center gap-4 p-6 bg-primary/5 border border-primary/10 rounded-3xl hover:bg-primary/10 hover:border-primary/20 transition-all"
+                        >
+                            <div className="p-3 bg-primary text-primary-foreground rounded-2xl shrink-0 shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
+                                <Download size={22} />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <p className="font-bold text-lg text-primary group-hover:underline break-all">
+                                    {attachedName || 'Скачать файл'}
+                                </p>
+                                <p className="text-sm text-muted-foreground mt-1">
+                                    Нажми, чтобы скачать
+                                </p>
+                            </div>
+                            <Download size={20} className="text-muted-foreground group-hover:text-primary group-hover:translate-y-0.5 transition-all shrink-0" />
+                        </a>
+                    </div>
+                )}
+
+                {attachedName && !hasDownloadableFile && (
                     <div className="mb-12 p-6 bg-secondary/30 border border-border rounded-3xl flex items-start gap-4">
                         <div className="p-3 bg-primary text-primary-foreground rounded-2xl shrink-0">
                             <FileText size={22} />
@@ -146,7 +171,7 @@ export default function MaterialPage() {
                     <div className="prose prose-invert max-w-none">
                         <SummaryRenderer data={parseMarkdownToBlocks(material.content)} />
                     </div>
-                ) : !attachedName ? (
+                ) : !attachedName && !hasDownloadableFile ? (
                     <p className="text-muted-foreground">У этого конспекта пока нет содержимого для просмотра.</p>
                 ) : null}
 

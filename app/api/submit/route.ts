@@ -1,5 +1,16 @@
 import { NextResponse } from 'next/server';
+import { put } from '@vercel/blob';
+import { nanoid } from 'nanoid';
+
 export const dynamic = 'force-dynamic';
+
+const MAX_FILE_SIZE = 20 * 1024 * 1024;
+
+const ALLOWED_EXTENSIONS: string[] = [
+    'pdf', 'doc', 'docx', 'png', 'jpg', 'jpeg', 'gif', 'webp',
+    'txt', 'rtf', 'odt', 'zip', 'rar', '7z', 'ppt', 'pptx',
+    'xls', 'xlsx', 'csv',
+];
 
 export async function POST(request: Request) {
     const prisma = (await import('@/lib/prisma')).default;
@@ -13,16 +24,32 @@ export async function POST(request: Request) {
         const content = formData.get('desc') as string;
         const group = formData.get('group') as string;
 
-        // No storage backend for submission attachments yet, so we keep only the
-        // filename as a display label. An empty file input arrives as a zero-byte
-        // File named "undefined", which must not become `[attached: undefined]`.
         const file = formData.get('file') as File | null;
-        const hasRealFile =
-            !!file && file.size > 0 && !!file.name && file.name !== 'undefined';
-        const fileUrl = hasRealFile ? `[attached: ${file!.name}]` : null;
 
         if (!type || !title || !content) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+        }
+
+        let fileUrl: string | null = null;
+
+        if (file && file.size > 0 && file.name && file.name !== 'undefined') {
+            if (file.size > MAX_FILE_SIZE) {
+                return NextResponse.json({ error: 'File too large. Max 20 MB.' }, { status: 400 });
+            }
+
+            const ext = file.name.split('.').pop()?.toLowerCase() || '';
+            if (!ALLOWED_EXTENSIONS.includes(ext)) {
+                return NextResponse.json({ error: `Unsupported file type (.${ext})` }, { status: 400 });
+            }
+
+            const filename = `submission-${Date.now()}-${nanoid(8)}.${ext}`;
+
+            const blob = await put(filename, file, {
+                access: 'public',
+                token: process.env.BLOB_READ_WRITE_TOKEN,
+            });
+
+            fileUrl = blob.url;
         }
 
         const submission = await prisma.submission.create({
@@ -32,7 +59,7 @@ export async function POST(request: Request) {
                 author: author || 'Аноним',
                 group: group || null,
                 content: content,
-                fileUrl: fileUrl || null,
+                fileUrl: fileUrl,
                 status: 'pending',
                 userId: user?.id || null,
             },
