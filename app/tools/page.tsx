@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { resolveStoredLink } from '@/lib/materialLink';
 
 
 const baseCategories = [
@@ -220,34 +221,49 @@ export default function ToolsPage() {
                                 </div>
 
                                 <div className="grid grid-cols-1 gap-3">
-                                    {category.tools.map((tool: any) => (
-                                        <div
-                                            key={tool.name}
-                                            onClick={() => {
-                                                if (tool.url) {
-                                                    if (tool.url.startsWith('/')) {
-                                                        router.push(tool.url);
-                                                    } else {
-                                                        window.open(tool.url, '_blank');
+                                    {category.tools.map((tool: any) => {
+                                        const link = resolveStoredLink(tool.url);
+                                        const openable = link.kind === 'internal' || link.kind === 'external';
+
+                                        return (
+                                            <div
+                                                key={tool.name}
+                                                onClick={() => {
+                                                    if (link.kind === 'internal') {
+                                                        router.push(link.href);
+                                                        return;
                                                     }
-                                                }
-                                            }}
-                                            className="group flex items-center justify-between p-5 bg-card border border-border rounded-2xl hover:border-primary/40 hover:shadow-xl transition-all cursor-pointer"
-                                        >
-                                            <div className="space-y-1">
-                                                <div className="flex items-center gap-2">
-                                                    <h3 className="text-lg font-bold group-hover:text-primary transition-colors">{tool.name}</h3>
-                                                    {tool.url?.startsWith('/') && (
-                                                        <span className="bg-primary/10 text-primary text-[10px] font-black uppercase px-2 py-0.5 rounded-md border border-primary/20">
-                                                            Авторский
-                                                        </span>
-                                                    )}
+                                                    if (link.kind === 'external') {
+                                                        window.open(link.href, '_blank', 'noopener,noreferrer');
+                                                    }
+                                                    // Placeholders like `[attached: file.pdf]` are not locations.
+                                                }}
+                                                className={`group flex items-center justify-between p-5 bg-card border border-border rounded-2xl transition-all ${openable
+                                                    ? 'hover:border-primary/40 hover:shadow-xl cursor-pointer'
+                                                    : 'opacity-60 cursor-not-allowed'}`}
+                                            >
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <h3 className={`text-lg font-bold transition-colors ${openable ? 'group-hover:text-primary' : ''}`}>{tool.name}</h3>
+                                                        {link.kind === 'internal' && (
+                                                            <span className="bg-primary/10 text-primary text-[10px] font-black uppercase px-2 py-0.5 rounded-md border border-primary/20">
+                                                                Авторский
+                                                            </span>
+                                                        )}
+                                                        {!openable && (
+                                                            <span className="bg-secondary text-muted-foreground text-[10px] font-black uppercase px-2 py-0.5 rounded-md border border-border">
+                                                                Нет ссылки
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-xs text-muted-foreground leading-relaxed">{tool.desc}</p>
                                                 </div>
-                                                <p className="text-xs text-muted-foreground leading-relaxed">{tool.desc}</p>
+                                                {openable && (
+                                                    <ChevronRight size={18} className="text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                                                )}
                                             </div>
-                                            <ChevronRight size={18} className="text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                     {category.tools.length === 0 && (
                                         <div className="p-4 bg-secondary/30 border border-dashed border-border rounded-2xl text-center text-xs text-muted-foreground italic">
                                             Пока пусто. Есть идеи?

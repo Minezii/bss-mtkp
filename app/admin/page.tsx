@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { LogOut, Check, X, Clock, FileText, UserPlus, Wrench, RefreshCcw, Edit3, Save, Eye, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { resolveStoredLink } from '@/lib/materialLink';
 
 export default function AdminDashboard() {
     const [submissions, setSubmissions] = useState<any[]>([]);
@@ -316,7 +317,23 @@ export default function AdminDashboard() {
                                             <td className="px-6 py-5 text-right">
                                                 <div className="flex justify-end gap-2">
                                                     <button
-                                                        onClick={() => window.open(m.type === 'ai' ? `/summaries?uuid=${m.uuid}` : (m.fileUrl || `/material/${m.id}`), '_blank')}
+                                                        onClick={() => {
+                                                            if (m.type === 'ai' && m.uuid) {
+                                                                window.open(`/summary/${m.uuid}`, '_blank');
+                                                                return;
+                                                            }
+                                                            const link = resolveStoredLink(m.fileUrl);
+                                                            if (link.kind === 'summary' || link.kind === 'internal') {
+                                                                window.open(link.href, '_blank');
+                                                                return;
+                                                            }
+                                                            if (link.kind === 'external') {
+                                                                window.open(link.href, '_blank', 'noopener,noreferrer');
+                                                                return;
+                                                            }
+                                                            // Attachment placeholder / empty: show the material page instead.
+                                                            window.open(`/material/${m.id}`, '_blank');
+                                                        }}
                                                         className="p-2.5 bg-secondary hover:bg-primary hover:text-white rounded-xl transition-all"
                                                     >
                                                         <Eye size={18} />
@@ -327,20 +344,34 @@ export default function AdminDashboard() {
                                         </tr>
                                     ))
                                 ) : activeTab === 'tools' ? (
-                                    tools.map((t) => (
-                                        <tr key={t.id} className="hover:bg-muted/30 transition-colors text-sm group">
-                                            <td className="px-6 py-5 font-bold text-orange-500">{t.category}</td>
-                                            <td className="px-6 py-5 font-bold">{t.name}</td>
-                                            <td className="px-6 py-5 font-medium text-muted-foreground max-w-[200px] truncate">{t.desc}</td>
-                                            <td className="px-6 py-5 text-muted-foreground text-xs">{new Date(t.createdAt).toLocaleDateString()}</td>
-                                            <td className="px-6 py-5 text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    <button onClick={() => window.open(t.url, '_blank')} className="p-2.5 bg-secondary hover:bg-primary hover:text-white rounded-xl transition-all"><Eye size={18} /></button>
-                                                    <button onClick={() => handleDeleteTool(t.id)} className="p-2.5 bg-destructive/10 text-destructive hover:bg-destructive hover:text-white rounded-xl transition-all"><Trash2 size={18} /></button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
+                                    tools.map((t) => {
+                                        const toolLink = resolveStoredLink(t.url);
+                                        const toolHref = toolLink.kind === 'internal' || toolLink.kind === 'external' ? toolLink.href : null;
+
+                                        return (
+                                            <tr key={t.id} className="hover:bg-muted/30 transition-colors text-sm group">
+                                                <td className="px-6 py-5 font-bold text-orange-500">{t.category}</td>
+                                                <td className="px-6 py-5 font-bold">{t.name}</td>
+                                                <td className="px-6 py-5 font-medium text-muted-foreground max-w-[200px] truncate">{t.desc}</td>
+                                                <td className="px-6 py-5 text-muted-foreground text-xs">{new Date(t.createdAt).toLocaleDateString()}</td>
+                                                <td className="px-6 py-5 text-right">
+                                                    <div className="flex justify-end gap-2">
+                                                        <button
+                                                            onClick={() => {
+                                                                if (toolHref) window.open(toolHref, '_blank', 'noopener,noreferrer');
+                                                            }}
+                                                            disabled={!toolHref}
+                                                            title={toolHref ? 'Открыть' : 'У инструмента нет валидной ссылки'}
+                                                            className="p-2.5 bg-secondary hover:bg-primary hover:text-white rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-secondary disabled:hover:text-current"
+                                                        >
+                                                            <Eye size={18} />
+                                                        </button>
+                                                        <button onClick={() => handleDeleteTool(t.id)} className="p-2.5 bg-destructive/10 text-destructive hover:bg-destructive hover:text-white rounded-xl transition-all"><Trash2 size={18} /></button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
                                 ) : null}
                             </tbody>
                         </table>

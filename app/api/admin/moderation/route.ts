@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { isAttachedPlaceholder } from '@/lib/materialLink';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
@@ -81,12 +82,17 @@ export async function POST(request: Request) {
                 createdId = teacher.id;
             }
             else if (submission.type === 'tool') {
+                // A tool is only ever a link. `[attached: file.pdf]` is a label
+                // for a file that was never stored, so it must not become a url
+                // that the UI would later try to open.
+                const url = isAttachedPlaceholder(finalData.fileUrl) ? null : finalData.fileUrl;
+
                 const tool = await prisma.tool.create({
                     data: {
                         name: finalData.title,
                         desc: finalData.content || '',
                         category: finalData.category,
-                        url: finalData.fileUrl,
+                        url,
                     },
                 });
                 createdId = tool.id;

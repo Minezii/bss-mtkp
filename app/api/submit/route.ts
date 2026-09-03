@@ -13,9 +13,13 @@ export async function POST(request: Request) {
         const content = formData.get('desc') as string;
         const group = formData.get('group') as string;
 
-        // We'll store the filename in fileUrl for now since we don't have actual storage
+        // No storage backend for submission attachments yet, so we keep only the
+        // filename as a display label. An empty file input arrives as a zero-byte
+        // File named "undefined", which must not become `[attached: undefined]`.
         const file = formData.get('file') as File | null;
-        const fileUrl = file ? `[attached: ${file.name}]` : null;
+        const hasRealFile =
+            !!file && file.size > 0 && !!file.name && file.name !== 'undefined';
+        const fileUrl = hasRealFile ? `[attached: ${file!.name}]` : null;
 
         if (!type || !title || !content) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });

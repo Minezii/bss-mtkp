@@ -2,7 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Search, FileText, Download, GraduationCap, RefreshCcw, Sparkles, Clock, BookOpen, Zap, Send } from 'lucide-react';
+import { Search, FileText, GraduationCap, RefreshCcw, Clock, BookOpen, Zap, Send } from 'lucide-react';
+import { resolveStoredLink } from '@/lib/materialLink';
 
 interface Material {
   id: string;
@@ -175,22 +176,23 @@ export default function Home() {
                   <div
                     key={`material-${item.id}`}
                     onClick={() => {
-                      if (item.fileUrl) {
-                        if (item.fileUrl.includes('/summary/')) {
-                          const uuid = item.fileUrl.split('/summary/')[1]?.split('?')[0];
-                          if (uuid) {
-                            router.push(`/summary/${uuid}`);
-                          } else {
-                            window.open(item.fileUrl, '_blank');
-                          }
-                        } else {
-                          window.open(item.fileUrl, '_blank');
-                        }
-                      } else if (item.content) {
-                        router.push(`/material/${item.id}`);
-                      } else {
-                        alert('Файл еще не загружен или ссылка отсутствует.');
+                      const link = resolveStoredLink(item.fileUrl);
+
+                      // `attachment` and `none` intentionally fall through to the
+                      // material page: the placeholder is a label, not a location.
+                      if (link.kind === 'summary' || link.kind === 'internal') {
+                        router.push(link.href);
+                        return;
                       }
+                      if (link.kind === 'external') {
+                        window.open(link.href, '_blank', 'noopener,noreferrer');
+                        return;
+                      }
+                      if (item.id) {
+                        router.push(`/material/${item.id}`);
+                        return;
+                      }
+                      alert('Файл еще не загружен или ссылка отсутствует.');
                     }}
                     className="group bg-[#5865F2]/5 border border-[#5865F2]/10 rounded-2xl p-6 hover:shadow-xl hover:border-[#5865F2]/30 transition-all cursor-pointer relative overflow-hidden"
                   >

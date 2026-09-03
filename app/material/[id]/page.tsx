@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ChevronLeft, RefreshCcw, Clock, BookOpen } from 'lucide-react';
+import { ChevronLeft, RefreshCcw, Clock, BookOpen, FileText } from 'lucide-react';
 import SummaryRenderer from '@/components/SummaryRenderer';
+import { parseAttachedFilename } from '@/lib/materialLink';
 
 export default function MaterialPage() {
     const params = useParams();
@@ -77,12 +78,14 @@ export default function MaterialPage() {
         </div>
     );
 
-    if (!material || !material.content) return (
+    if (!material) return (
         <div className="min-h-screen flex flex-col items-center justify-center p-4">
             <h1 className="text-2xl font-bold mb-4">Конспект не найден</h1>
             <button onClick={() => router.back()} className="text-primary hover:underline">Вернуться назад</button>
         </div>
     );
+
+    const attachedName = parseAttachedFilename(material.fileUrl);
 
     return (
         <div className="min-h-screen bg-background pb-20">
@@ -125,9 +128,27 @@ export default function MaterialPage() {
                     </div>
                 </div>
 
-                <div className="prose prose-invert max-w-none">
-                    <SummaryRenderer data={parseMarkdownToBlocks(material.content)} />
-                </div>
+                {attachedName && (
+                    <div className="mb-12 p-6 bg-secondary/30 border border-border rounded-3xl flex items-start gap-4">
+                        <div className="p-3 bg-primary text-primary-foreground rounded-2xl shrink-0">
+                            <FileText size={22} />
+                        </div>
+                        <div className="min-w-0">
+                            <p className="font-bold text-lg break-all">{attachedName}</p>
+                            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                                Файл был приложен при отправке, но не сохранён на сервере. Скачать его отсюда нельзя.
+                            </p>
+                        </div>
+                    </div>
+                )}
+
+                {material.content ? (
+                    <div className="prose prose-invert max-w-none">
+                        <SummaryRenderer data={parseMarkdownToBlocks(material.content)} />
+                    </div>
+                ) : !attachedName ? (
+                    <p className="text-muted-foreground">У этого конспекта пока нет содержимого для просмотра.</p>
+                ) : null}
 
                 <div className="mt-20 pt-12 border-t border-border flex flex-col md:flex-row items-center justify-between gap-8">
                     <div className="space-y-1 text-center md:text-left">

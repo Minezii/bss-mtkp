@@ -57,7 +57,7 @@ export default function SummaryPage() {
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch(`https://api.earmiss.ru/summaries/${uuid}`);
+            const res = await fetch(`/api/summaries/${uuid}`);
             if (res.ok) {
                 const data = await res.json();
                 setSummary(data);
@@ -141,7 +141,7 @@ export default function SummaryPage() {
                         </div>
                         <h2 className="text-2xl font-black mb-2">Конспект не найден</h2>
                         <p className="text-muted-foreground mb-8">
-                            Похоже, UUID неверный или конспект был удален.
+                            {error}
                         </p>
                         <button
                             onClick={() => router.push('/summaries')}
