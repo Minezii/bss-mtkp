@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
-
 export async function GET() {
     try {
         const teachers = await prisma.teacher.findMany({
@@ -71,9 +70,16 @@ export async function DELETE(request: Request) {
             return NextResponse.json({ error: 'Missing id' }, { status: 400 });
         }
 
-        await prisma.teacher.delete({
-            where: { id: parseInt(id) }
-        });
+        const idInt = parseInt(id);
+        const teacherId = Number.isNaN(idInt) ? null : idInt;
+        if (!teacherId) {
+            return NextResponse.json({ error: 'Invalid teacher id' }, { status: 400 });
+        }
+
+        await prisma.$transaction([
+            prisma.review.deleteMany({ where: { teacherId } }),
+            prisma.teacher.delete({ where: { id: teacherId } }),
+        ]);
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error('Delete teacher error:', error);
